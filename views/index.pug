@@ -1,0 +1,18 @@
+extends default
+
+block content
+	script(src='/client.js')
+	div.container
+		each val in [1, 2, 3]
+			div.parking-spot
+				div.parking-spot-image(style=`background: url('/images/ParkingSpace.png') top center no-repeat; background-size: cover;`)
+					div.sensor.free(id= 'A' + val)
+	div.path
+		div.striped-border
+		
+	div.container
+		each val in [1, 2, 3]
+			div.parking-spot
+				div.parking-spot-image(style=`background: url('/images/ParkingSpace1.png') top center no-repeat; background-size: cover;`)
+					div.sensor.free(id= 'B' + val)
+				
