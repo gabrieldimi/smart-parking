@@ -15,7 +15,7 @@ app.use(express.static(__dirname + '/public'));
 
 app.get('/', (req,res) => {
 	res.render('index',{
-		title: 'Smart parking'
+		title: 'Smart parking test'
 	});
 });
 
@@ -34,7 +34,6 @@ io.on('connection', (socket) => {
 "scripts": {
     "start": "npm start"
   },
-
 "pm2": "^2.10.3"
 */
 
