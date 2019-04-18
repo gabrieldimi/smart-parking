@@ -1,5 +1,6 @@
 const express = require('express');
 var app = express();
+var fs = require('fs');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
@@ -15,7 +16,7 @@ app.use(express.static(__dirname + '/public'));
 
 app.get('/', (req,res) => {
 	res.render('index',{
-		title: 'Smart parking test'
+		title: 'Smart parking'
 	});
 });
 
@@ -25,7 +26,6 @@ app.get('/parking', (req,res) =>{
 });
 
 io.on('connection', (socket) => {
-	console.log(socket);
 	socket.emit('spot taken','A1');
 });
 
