@@ -4,10 +4,12 @@ var fs = require('fs');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
+var spawn = require('child_process').spawn;
+var py = spawn('python', ['sensor.py']);
+
 app.set('view engine', 'pug');
 
-
-server.listen(9999, () => {
+server.listen(999, () => {
 	console.log(`Express running → PORT ${server.address().port}`);
 });
 
@@ -20,7 +22,6 @@ app.get('/', (req,res) => {
 	});
 });
 
-
 app.get('/parking', (req,res) =>{
 	console.log('parking website');
 });
@@ -29,11 +30,6 @@ io.on('connection', (socket) => {
 	socket.emit('spot taken','A1');
 });
 
-
-/*
-"scripts": {
-    "start": "npm start"
-  },
-"pm2": "^2.10.3"
-*/
-
+py.stdout.on('data', function (data){
+	console.log(data.toString());
+});
