@@ -5,7 +5,7 @@ import time
 GPIO.setmode(GPIO.BCM)
 
 # Hier wird der Eingangs-Pin deklariert, an dem der Sensor angeschlossen ist.
-GPIO_PIN = 24
+GPIO_PIN = 4
 GPIO.setup(GPIO_PIN, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 
 # Pause  zwischen der Ausgabe des Ergebnisses wird definiert (in Sekunden)
