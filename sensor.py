@@ -1,7 +1,6 @@
 # Benoetigte Module werden importiert und eingerichtet
 import RPi.GPIO as GPIO
 import time
-import sys, json, numpy as np
 
 GPIO.setmode(GPIO.BCM)
 
