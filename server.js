@@ -1,4 +1,4 @@
-import {PythonShell} from 'python-shell';
+let {PythonShell} = require('python-shell');
 const express = require('express');
 var app = express();
 var fs = require('fs');
@@ -6,26 +6,13 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
 let pythonShellOptions = {
-	mode: 'json',
+	mode: 'text',
 	pythonOptions: ['-u'],
 };
 
-let pyShell =  new PythonShell('sensor.py', pythonShellOptions);
-
-pyShell.on('message', function(message){
-	console.log(message);
-});
-
-/*
-var spawn = require('child_process').spawn;
-var py = spawn('python', ['sensor.py']);
-py.stdout.on('data', function (data){
-	console.log(data.toString());
-});
-*/
 app.set('view engine', 'pug');
 
-server.listen(999, () => {
+server.listen(9999, () => {
 	console.log(`Express running → PORT ${server.address().port}`);
 });
 
@@ -43,5 +30,18 @@ app.get('/parking', (req,res) =>{
 });
 
 io.on('connection', (socket) => {
-	socket.emit('spot taken','A1');
+	
+	let pyShell =  new PythonShell('sensor.py', pythonShellOptions);
+
+	pyShell.on('message', function(msg){
+		console.log(msg);
+		//var res = msg.split(';');
+		//if(res[0] == 1){
+		if(msg <= 3.5){			
+			io.emit('spot taken','A1');
+		}else if(msg > 5.0){
+			io.emit('spot free', 'A1');	
+		}	
+	});
+
 });

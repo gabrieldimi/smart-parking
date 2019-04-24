@@ -12,6 +12,13 @@ socket.on('spot taken', (spotID) =>{
 	$('#'+spotID).addClass("taken");
 });
 
+socket.on('spot free', (spotID) =>{
+	console.log(spotID);
+	$('#'+spotID).removeClass("taken");
+	$('#'+spotID).addClass("free");
+});
+
+
 
 
 

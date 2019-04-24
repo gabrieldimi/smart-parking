@@ -2,27 +2,38 @@
 import RPi.GPIO as GPIO
 import time
 
-GPIO.setmode(GPIO.BCM)
-
-# Hier wird der Eingangs-Pin deklariert, an dem der Sensor angeschlossen ist.
-GPIO_PIN = 4
-GPIO.setup(GPIO_PIN, GPIO.IN, pull_up_down = GPIO.PUD_UP)
-
-# Pause  zwischen der Ausgabe des Ergebnisses wird definiert (in Sekunden)
-delayTime = 0.5
-print "Sensor-Test [druecken Sie STRG+C, um den Test zu beenden]"
-# Hauptprogrammschleife
 try:
 	while True:
-	    if GPIO.input(GPIO_PIN) == True:
-	        print "Kein Hindernis"
-	    else:
-	        print "Hindernis erkannt"
-	    print "---------------------------------------"
+		GPIO.setmode(GPIO.BOARD)
+		# Hier wird der Eingangs-Pin deklariert, an dem der Sensor angeschlossen ist.
+		PIN_TRIGGER = 7
+		PIN_ECHO = 11
+		
+		GPIO.setup(PIN_TRIGGER, GPIO.OUT)
+		GPIO.setup(PIN_ECHO, GPIO.IN)
+		
+		GPIO.output(PIN_TRIGGER, GPIO.LOW)
 
-	    #Reset + Delay
-	    time.sleep(delayTime)
+		#print('Waiting for the sensor to settle')
+		
+		time.sleep(2)
+		
+		#print('Time to calculate distance')
+		
+		GPIO.output(PIN_TRIGGER, GPIO.HIGH)
 
-# Aufraeumarbeiten nachdem das Programm beendet wurde
-except KeyboardInterrupt:
+		time.sleep(0.00001)
+		
+		GPIO.output(PIN_TRIGGER, GPIO.LOW)
+
+		while GPIO.input(PIN_ECHO) == 0:
+			pulse_start_time = time.time()
+		while GPIO.input(PIN_ECHO) == 1:
+			pulse_end_time = time.time();
+		
+		pulse_duration = pulse_end_time - pulse_start_time
+		distance = round(pulse_duration * 17250, 2)
+		print(distance)
+
+finally:
 	GPIO.cleanup()
