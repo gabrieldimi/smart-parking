@@ -42,18 +42,19 @@ io.on('connection', (socket) => {
         console.log('New socket',socket.id);
 
         pyShell.on('message', function(msg){
-                console.log(msg);
-                //var res = msg.split(';');
-                //if(res[0] == 1){
-                if(msg <= args.distance){
+                let res = msg.split(';');
+                let id = res[1].trim();
+                let measure = res[0];
+                console.log("Distance measure from sensor",id,":",measure);
+                if(measure <= args.distance){
                         if(!toggleTaken){
-                                io.emit('spot taken','A1');
+                                io.emit('spot taken',id);
                                 toggleTaken = true;
                                 toggleFree = false;
                         }
-                }else if(msg > args.distance){
+                }else if(measure > args.distance){
                         if(!toggleFree){
-                                io.emit('spot free', 'A1');
+                                io.emit('spot free', id);
                                 toggleFree = true;
                                 toggleTaken = false;
                         }
@@ -61,4 +62,5 @@ io.on('connection', (socket) => {
         });
 
 });
+
 
