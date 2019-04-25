@@ -1,6 +1,6 @@
 # Benoetigte Module werden importiert und eingerichtet
 import RPi.GPIO as GPIO
-import time
+import time, sys
 
 try:
 	while True:
@@ -15,8 +15,8 @@ try:
 		GPIO.output(PIN_TRIGGER, GPIO.LOW)
 
 		#print('Waiting for the sensor to settle')
-		
-		time.sleep(2)
+		#print(sys.argv[1])
+		time.sleep(float(sys.argv[1]))
 		
 		#print('Time to calculate distance')
 		
