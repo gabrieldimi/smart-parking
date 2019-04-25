@@ -1,10 +1,10 @@
-let {PythonShell} = require('python-shell');
 const express = require('express');
 var app = express();
 var fs = require('fs');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
+let {PythonShell} = require('python-shell');
 let pythonShellOptions = {
 	mode: 'text',
 	pythonOptions: ['-u'],
