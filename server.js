@@ -35,8 +35,13 @@ app.get('/parking', (req,res) =>{
 });
 
 let pyShell =  new PythonShell('sensor.py', pythonShellOptions);
-let toggleTaken = false;
-let toggleFree = false;
+let toggleArray = [];
+for (var i = 0; i < args.amount_of_sensors; i++){
+	toggleArray.push([false,false]);
+}
+
+//let toggleTaken = false;
+//let toggleFree = false;
 
 io.on('connection', (socket) => {
         console.log('New socket',socket.id);
@@ -47,16 +52,16 @@ io.on('connection', (socket) => {
                 let measure = res[0];
                 console.log("Distance measure from sensor",id,":",measure);
                 if(measure <= args.distance){
-                        if(!toggleTaken){
+                        if(!toggleArray[0][0]){
                                 io.emit('spot taken',id);
-                                toggleTaken = true;
-                                toggleFree = false;
+                                toggleArray[0][0] = true;
+                                toggleArray[0][1] = false;
                         }
                 }else if(measure > args.distance){
-                        if(!toggleFree){
+                        if(!toggleArray[0][1]){
                                 io.emit('spot free', id);
-                                toggleFree = true;
-                                toggleTaken = false;
+                                toggleArray[0][1] = true;
+                                toggleArray[0][0] = false;
                         }
                 }
         });
