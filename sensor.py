@@ -2,42 +2,45 @@
 import RPi.GPIO as GPIO
 import time, sys
 
-def sensor(trigger_pin,echo_pin,time_to_sleep,parkingSlotID):
+def sensorInitialize(trigger_pin,echo_pin):
 	GPIO.setmode(GPIO.BOARD)
-	# Hier wird der Eingangs-Pin deklariert, an dem der Sensor angeschlossen ist.
-	PIN_TRIGGER = trigger_pin
-	PIN_ECHO = echo_pin
-		
-	GPIO.setup(PIN_TRIGGER, GPIO.OUT)
-	GPIO.setup(PIN_ECHO, GPIO.IN)
-	
-	GPIO.output(PIN_TRIGGER, GPIO.LOW)
+	#Matching the pin to the GPIO slots
+	GPIO.setup(trigger_pin, GPIO.OUT)
+	GPIO.setup(echo_pin, GPIO.IN)
 
-	#print('Waiting for the sensor to settle')
-	#print(sys.argv[1])
+
+def sensorMeasuring(trigger_pin,echo_pin,time_to_sleep):
+	GPIO.output(trigger_pin, GPIO.LOW)
+	#print('Waiting for the sensor to settle')	
+	#print(sys.argv[1])	
 	time.sleep(time_to_sleep)
-	
+		
 	#print('Time to calculate distance')
-	
-	GPIO.output(PIN_TRIGGER, GPIO.HIGH)
+		
+	GPIO.output(trigger_pin, GPIO.HIGH)
 	time.sleep(0.00001)
-	
-	GPIO.output(PIN_TRIGGER, GPIO.LOW)
+		
+	GPIO.output(trigger_pin, GPIO.LOW)
 
-	while GPIO.input(PIN_ECHO) == 0:
+	while GPIO.input(echo_pin) == 0:
 		pulse_start_time = time.time()
-	while GPIO.input(PIN_ECHO) == 1:
+	while GPIO.input(echo_pin) == 1:
 		pulse_end_time = time.time();
-	
+		
 	pulse_duration = pulse_end_time - pulse_start_time
 	distance = round(pulse_duration * 17250, 2)
-	print(distance,';',parkingSlotID)
+	print(distance)
 
-try:
-	while True:
-		sensor(7,11,float(sys.argv[1]),"A1")
 
-finally:
-	GPIO.cleanup()
+if __name__ == '__main__':
+	try:
+		trigger = int(sys.argv[1],10)
+		echo = int(sys.argv[2],10)
+		sleep_time = float(sys.argv[3])
+		sensorInitialize(trigger,echo)
+		while True:
+			sensorMeasuring(trigger,echo,sleep_time)
+	finally:
+		GPIO.cleanup()
 
 	

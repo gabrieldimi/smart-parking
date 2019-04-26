@@ -8,13 +8,6 @@ var io = require('socket.io')(server);
 console.log("Distance:",args.distance,"cm");
 console.log("Sleeping time between readings:",args.time_to_sleep,"sec(s)");
 
-let {PythonShell} = require('python-shell');
-let pythonShellOptions = {
-	mode: 'text',
-	pythonOptions: ['-u'],
-	args: [Number(args.time_to_sleep)]
-};
-
 app.set('view engine', 'pug');
 
 server.listen(args.port, () => {
@@ -34,38 +27,41 @@ app.get('/parking', (req,res) =>{
 	console.log('parking website');
 });
 
-let pyShell =  new PythonShell('sensor.py', pythonShellOptions);
-let toggleArray = [];
-for (var i = 0; i < args.amount_of_sensors; i++){
-	toggleArray.push([false,false]);
-}
+let {PythonShell} = require('python-shell');
 
-//let toggleTaken = false;
-//let toggleFree = false;
+let pythonScriptArray = [];
+for (var i = 0; i < args.amount_of_sensors; i++){
+	let pythonShellOptions = {
+		mode: 'text',
+		pythonOptions: ['-u'],
+		args: [7,11,Number(args.time_to_sleep),]
+	};
+
+	pythonScriptArray.push([new PythonShell('sensor.py', pythonShellOptions),'A'+(i+1),false,false]);
+}
 
 io.on('connection', (socket) => {
         console.log('New socket',socket.id);
+	pythonScriptArray.forEach((row)=>{
+		row[0].on('message', function(distance){
 
-        pyShell.on('message', function(msg){
-                let res = msg.split(';');
-                let id = res[1].trim();
-                let measure = res[0];
-                console.log("Distance measure from sensor",id,":",measure);
-                if(measure <= args.distance){
-                        if(!toggleArray[0][0]){
-                                io.emit('spot taken',id);
-                                toggleArray[0][0] = true;
-                                toggleArray[0][1] = false;
-                        }
-                }else if(measure > args.distance){
-                        if(!toggleArray[0][1]){
-                                io.emit('spot free', id);
-                                toggleArray[0][1] = true;
-                                toggleArray[0][0] = false;
-                        }
-                }
-        });
+		        console.log("Distance measure from sensor",row[1],":",distance);
 
+		        if(distance <= args.distance){
+		                if(!row[2]){
+		                        io.emit('spot taken',row[1]);
+		                        row[2] = true;
+		                        row[3] = false;
+		                }
+		        }else if(distance > args.distance){
+		                if(!row[3]){
+		                        io.emit('spot free', row[1]);
+		                        row[3] = true;
+		                        row[2] = false;
+		                }
+		        }
+		});
+	});
 });
 
 
