@@ -28,7 +28,7 @@ def sensorMeasuring(trigger_pin,echo_pin,time_to_sleep):
 		pulse_end_time = time.time();
 		
 	pulse_duration = pulse_end_time - pulse_start_time
-	distance = round(pulse_duration * 17250, 2)
+	distance = round(pulse_duration * 17150, 2)
 	print(distance)
 
 

@@ -2,20 +2,6 @@
    #STYLES
    ========================================================================== */
 
-
-/**
- *
- * [1]: Inheriting box sizing slightly better best-practice
- * https://css-tricks.com/inheriting-box-sizing-probably-slightly-better-best-practice/
- *
- * [2]: WordPress System font-stack
- */
-
-
-/* RESET
-   ========================================================================== */
-
-
 html {
   box-sizing: border-box;
 }
@@ -81,10 +67,19 @@ body {
 /* Parking Spot
    ========================================================================== */
 
-.parking-spot-image {
+.parking-spot{
   text-align: center;
   width: 100%;
   height: 300px;
+}
+
+.slot {
+  
+	width: auto;
+	height: auto;
+	max-width: 350px;
+	max-height:300px;
+
 }
 
 /* Sensor 
@@ -92,22 +87,31 @@ body {
 
 .sensorLeft {
 	height:10%;
-  	margin: -35% auto auto 25%;
-  	width:10%;
+  margin: -50% auto auto 14%;
+  width:10%;
 	border-radius:35%;
 }
 
 .sensorRight {
 	height:10%;
-  	margin:-7.2% auto auto 65%;
-  	width:10%;
+  margin:-7.2% auto auto 50%;
+  width:10%;
 	border-radius:35%;
 }
 
 .taken{
-	background:red;
+	visibility: visible;
 }
 
 .free{
-	background:#556BB5;
+	visibility: hidden;
 }
+
+.car {
+	width: auto;
+	height: auto;
+	max-width: 150px;
+	max-height:200px;
+}
+
+

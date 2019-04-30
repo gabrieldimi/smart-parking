@@ -30,14 +30,18 @@ app.get('/parking', (req,res) =>{
 let {PythonShell} = require('python-shell');
 
 let pythonScriptArray = [];
+let trigger = 7;
+let echo = 11;
 for (var i = 0; i < args.amount_of_sensors; i++){
 	let pythonShellOptions = {
 		mode: 'text',
 		pythonOptions: ['-u'],
-		args: [7,11,Number(args.time_to_sleep),]
+		args: [trigger,echo,Number(args.time_to_sleep),]
 	};
 
 	pythonScriptArray.push([new PythonShell('sensor.py', pythonShellOptions),'A'+(i+1),false,false]);
+	trigger += 6;
+	echo += 4;
 }
 
 io.on('connection', (socket) => {
@@ -62,6 +66,20 @@ io.on('connection', (socket) => {
 		        }
 		});
 	});
+	
+	simulation(3000);
+
 });
+
+
+function simulation(time){
+
+	setInterval(()=>{
+		let rand1 = Math.floor(Math.random() *10) +2;
+		let rand2 = Math.floor(Math.random() *10) +2;
+		io.emit('spot taken', 'A'+ rand1);
+		io.emit('spot free', 'A' + rand2);
+	},time);
+}
 
 

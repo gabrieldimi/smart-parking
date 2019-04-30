@@ -1,9 +1,9 @@
 {
         "arguments" : {
                 "distance" : 5.0,
-                "time_to_sleep" : 1.0,
+                "time_to_sleep" : 0.5,
                 "port" : "9999",
-		"amount_of_sensors" : 1
+		"amount_of_sensors" : 2
         }
 
 }
