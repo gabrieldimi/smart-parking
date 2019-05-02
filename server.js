@@ -23,7 +23,7 @@ app.use(express.static(__dirname + '/public'));
 
 app.get('/', (req,res) => {
 	res.render('index',{
-		title: 'Smart parking'
+		title: 'Smart parking on 9th floor of DEC'
 	});
 });
 
@@ -69,7 +69,7 @@ io.on('connection', (socket) => {
 		        }
 		});
 	});
-	if(amountOfSensors < args.max_amount_of_sensors){
+	if(amountOfSensors < maxAmountOfSensors){
 		simulation(maxAmountOfSensors - amountOfSensors,maxAmountOfSensors,3000);
 	}
 
@@ -79,8 +79,8 @@ io.on('connection', (socket) => {
 function simulation(leftOverSensors, maxAmount, time){
 
 	setInterval(()=>{
-		let rand1 = Math.floor(Math.random() *leftOverSensors) + maxAmount;
-		let rand2 = Math.floor(Math.random() *leftOverSensors) + maxAmount;
+		let rand1 = Math.floor(Math.random() *leftOverSensors) + (maxAmount-1);
+		let rand2 = Math.floor(Math.random() *leftOverSensors) + (maxAmount-1);
 		io.emit('spot taken', rand1);
 		io.emit('spot free', rand2);
 	},time);
