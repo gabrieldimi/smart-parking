@@ -63,6 +63,10 @@ body {
         margin-bottom: 100px;
 }
 
+.svgContainer {
+	text-align:center;
+}
+
 
 /* Parking Spot
    ========================================================================== */
@@ -107,11 +111,18 @@ body {
 	visibility: hidden;
 }
 
+.red{
+	fill: red;
+}
+
 .car {
 	width: auto;
 	height: auto;
-	max-width: 150px;
-	max-height:200px;
+	max-width: 50px;
+	max-height:100px;
 }
+
+
+
 
 

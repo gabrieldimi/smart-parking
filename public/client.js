@@ -7,14 +7,16 @@ console.log('Connection to Websocket at port', port);
 
 socket.on('spot taken', (spotID) =>{
         console.log('Parking slot',spotID, 'has been taken');
-        $('#'+spotID).removeClass("free");
-        $('#'+spotID).addClass("taken");
+        $('#car'+spotID).removeClass("free");
+        $('#car'+spotID).addClass("taken");
+	$('#spot'+spotID).addClass("red");
 });
 
 socket.on('spot free', (spotID) =>{
         console.log('Parking slot',spotID, 'is free again');
-        $('#'+spotID).removeClass("taken");
-        $('#'+spotID).addClass("free");
+        $('#car'+spotID).removeClass("taken");
+        $('#car'+spotID).addClass("free");
+	$('#spot'+spotID).removeClass("red");
 });
 
 socket.on('disconnect', () => {

@@ -39,7 +39,7 @@ for (var i = 0; i < args.amount_of_sensors; i++){
 		args: [trigger,echo,Number(args.time_to_sleep),]
 	};
 
-	pythonScriptArray.push([new PythonShell('sensor.py', pythonShellOptions),'A'+(i+1),false,false]);
+	pythonScriptArray.push([new PythonShell('sensor.py', pythonShellOptions),(i+1),false,false]);
 	trigger += 6;
 	echo += 4;
 }
@@ -81,5 +81,3 @@ function simulation(time){
 		io.emit('spot free', 'A' + rand2);
 	},time);
 }
-
-
