@@ -4,9 +4,13 @@ var app = express();
 var fs = require('fs');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
+let {PythonShell} = require('python-shell');
 
 console.log("Distance:",args.distance,"cm");
 console.log("Sleeping time between readings:",args.time_to_sleep,"sec(s)");
+
+let amountOfSensors = args.amount_of_sensors;
+let maxAmountOfSensors = args.max_amount_of_sensors;
 
 app.set('view engine', 'pug');
 
@@ -27,12 +31,11 @@ app.get('/parking', (req,res) =>{
 	console.log('parking website');
 });
 
-let {PythonShell} = require('python-shell');
 
 let pythonScriptArray = [];
 let trigger = 7;
 let echo = 11;
-for (var i = 0; i < args.amount_of_sensors; i++){
+for (var i = 0; i < amountOfSensors; i++){
 	let pythonShellOptions = {
 		mode: 'text',
 		pythonOptions: ['-u'],
@@ -66,18 +69,19 @@ io.on('connection', (socket) => {
 		        }
 		});
 	});
-	
-	simulation(3000);
+	if(amountOfSensors < args.max_amount_of_sensors){
+		simulation(maxAmountOfSensors - amountOfSensors,maxAmountOfSensors,3000);
+	}
 
 });
 
 
-function simulation(time){
+function simulation(leftOverSensors, maxAmount, time){
 
 	setInterval(()=>{
-		let rand1 = Math.floor(Math.random() *10) +2;
-		let rand2 = Math.floor(Math.random() *10) +2;
-		io.emit('spot taken', 'A'+ rand1);
-		io.emit('spot free', 'A' + rand2);
+		let rand1 = Math.floor(Math.random() *leftOverSensors) + maxAmount;
+		let rand2 = Math.floor(Math.random() *leftOverSensors) + maxAmount;
+		io.emit('spot taken', rand1);
+		io.emit('spot free', rand2);
 	},time);
 }

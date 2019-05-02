@@ -8,15 +8,13 @@ console.log('Connection to Websocket at port', port);
 socket.on('spot taken', (spotID) =>{
         console.log('Parking slot',spotID, 'has been taken');
         $('#car'+spotID).removeClass("free");
-        $('#car'+spotID).addClass("taken");
-	$('#spot'+spotID).addClass("red");
+	$('#spot'+spotID).addClass("taken");
 });
 
 socket.on('spot free', (spotID) =>{
         console.log('Parking slot',spotID, 'is free again');
-        $('#car'+spotID).removeClass("taken");
         $('#car'+spotID).addClass("free");
-	$('#spot'+spotID).removeClass("red");
+	$('#spot'+spotID).removeClass("taken");
 });
 
 socket.on('disconnect', () => {
