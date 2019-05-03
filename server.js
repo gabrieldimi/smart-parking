@@ -11,6 +11,7 @@ console.log("Sleeping time between readings:",args.time_to_sleep,"sec(s)");
 
 let amountOfSensors = args.amount_of_sensors;
 let maxAmountOfSensors = args.max_amount_of_sensors;
+let dummySleepingTime = args.time_to_sleep_for_dummies;
 
 app.set('view engine', 'pug');
 
@@ -70,17 +71,18 @@ io.on('connection', (socket) => {
 		});
 	});
 	if(amountOfSensors < maxAmountOfSensors){
-		simulation(maxAmountOfSensors - amountOfSensors,maxAmountOfSensors,3000);
+		simulation(maxAmountOfSensors - amountOfSensors,amountOfSensors,dummySleepingTime);
 	}
 
 });
 
 
-function simulation(leftOverSensors, maxAmount, time){
+function simulation(leftOverSensors, amountOfSensors, time){
 
 	setInterval(()=>{
-		let rand1 = Math.floor(Math.random() *leftOverSensors) + (maxAmount-1);
-		let rand2 = Math.floor(Math.random() *leftOverSensors) + (maxAmount-1);
+		let rand1 = Math.floor(Math.random() *leftOverSensors) + amountOfSensors + 1;
+		let rand2 = Math.floor(Math.random() *leftOverSensors) + amountOfSensors + 1;
+		console.log('rand1:',rand1," rand2: ",rand2);
 		io.emit('spot taken', rand1);
 		io.emit('spot free', rand2);
 	},time);
