@@ -37,11 +37,6 @@ app.get('/', (req,res) => {
 	});
 });
 
-app.get('/parking', (req,res) =>{
-	console.log('parking website');
-});
-
-
 if(!noSernorsPluggedOn){
 
 	let pythonScriptArray = [];
@@ -101,6 +96,8 @@ if(!noSernorsPluggedOn){
 		});
 	});
 	
+}else{
+	console.log('This is for debugging purposes outside of the raspberry PI');
 }
 
 function simulation(leftOverSensors, amountOfSensors, time){
