@@ -69,14 +69,14 @@ if(!noSernorsPluggedOn){
 
 				if(distance <= measuringDistance){
 				        if(!row[2]){
-				                io.emit('spot taken',row[1]);
+				                nspBrowsers.emit('spot taken',row[1]);
 								nspApps.emit('take picture');
 				                row[2] = true;
 				                row[3] = false;
 				        }
 				}else if(distance > measuringDistance){
 				        if(!row[3]){
-				                io.emit('spot free', row[1]);
+				                nspBrowsers.emit('spot free', row[1]);
 				                row[3] = true;
 				                row[2] = false;
 				        }
@@ -109,7 +109,7 @@ function simulation(leftOverSensors, amountOfSensors, time){
 		let rand1 = Math.floor(Math.random() *leftOverSensors) + amountOfSensors + 1;
 		let rand2 = Math.floor(Math.random() *leftOverSensors) + amountOfSensors + 1;
 		console.log('rand1:',rand1," rand2: ",rand2);
-		io.emit('spot taken', rand1);
-		io.emit('spot free', rand2);
+		nspBrowsers.emit('spot taken', rand1);
+		nspBrowsers.emit('spot free', rand2);
 	},time);
 }
