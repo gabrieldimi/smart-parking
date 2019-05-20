@@ -25,7 +25,7 @@ console.log("Sleeping time between readings of dummies:",dummySleepingTime,"sec(
 app.set('view engine', 'pug');
 
 server.listen(args.port, () => {
-	console.log(`Express running → ADDRESS ${server.address()} on PORT ${server.address().port}`);
+	console.log(`Express running → ADDRESS ${server.address().address} on PORT ${server.address().port}`);
 });
 
 //serve static files from the public folder
