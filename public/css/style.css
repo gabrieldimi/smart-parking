@@ -71,7 +71,10 @@ body {
 
 #center{
   text-align:center;
-	margin-top:-200px;
+  margin-top:-200px;
+
+  max-width: 80%;
+  max-height:80%;
 }
 #right {
    

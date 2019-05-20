@@ -6,18 +6,26 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 let {PythonShell} = require('python-shell');
 
-console.log("Distance:",args.distance,"cm");
-console.log("Sleeping time between readings:",args.time_to_sleep,"sec(s)");
+const nspBrowsers = io.of('/browsers');
+const nspApps = io.of('/apps');
 
 let amountOfSensors = args.amount_of_sensors;
+let sensorSleepingtime = args.time_to_sleep;
+let measuringDistance = args.distance;
 let maxAmountOfSensors = args.max_amount_of_sensors;
 let dummySleepingTime = args.time_to_sleep_for_dummies;
 let noSernorsPluggedOn = args.no_sensors_plugged_on;
 
+console.log("Distance:",measuringDistance,"cm");
+console.log("Amount of sensors:",amountOfSensors);
+console.log("Sleeping time between readings of sensors:",sensorSleepingtime,"sec(s)");
+console.log("Sleeping time between readings of dummies:",dummySleepingTime,"sec(s)");
+
+
 app.set('view engine', 'pug');
 
 server.listen(args.port, () => {
-	console.log(`Express running → PORT ${server.address().port}`);
+	console.log(`Express running → ADDRESS ${server.address()} on PORT ${server.address().port}`);
 });
 
 //serve static files from the public folder
@@ -43,7 +51,7 @@ if(!noSernorsPluggedOn){
 		let pythonShellOptions = {
 			mode: 'text',
 			pythonOptions: ['-u'],
-			args: [trigger,echo,Number(args.time_to_sleep),]
+			args: [trigger,echo,Number(sensorSleepingtime),]
 		};
 
 		pythonScriptArray.push([new PythonShell('sensor.py', pythonShellOptions),(i+1),false,false]);
@@ -51,20 +59,22 @@ if(!noSernorsPluggedOn){
 		echo += 4;
 	}
 
-	io.on('connection', (socket) => {
-		console.log('New socket',socket.id);
+	nspBrowsers.on('connection', (socket) => {
+		
+		console.log('New browser socket is connected',socket.id);
 		pythonScriptArray.forEach((row)=>{
 			row[0].on('message', function(distance){
 
 				console.log("Distance measure from sensor",row[1],":",distance);
 
-				if(distance <= args.distance){
+				if(distance <= measuringDistance){
 				        if(!row[2]){
 				                io.emit('spot taken',row[1]);
+								nspApps.emit('take picture');
 				                row[2] = true;
 				                row[3] = false;
 				        }
-				}else if(distance > args.distance){
+				}else if(distance > measuringDistance){
 				        if(!row[3]){
 				                io.emit('spot free', row[1]);
 				                row[3] = true;
@@ -78,6 +88,19 @@ if(!noSernorsPluggedOn){
 		}
 
 	});
+	
+	nspApps.on('connection', (socket) => {
+		
+		console.log('New app socket is connected',socket.id);
+		socket.on('image taken', (imageData){
+			nspBrowsers.emit('image received', imageData);
+		});
+		
+		socket.on('disconnect', (socket) => {
+      		console.log('App is disconnected', socket.id);
+		});
+	});
+	
 }
 
 function simulation(leftOverSensors, amountOfSensors, time){

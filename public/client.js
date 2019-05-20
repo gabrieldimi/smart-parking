@@ -1,24 +1,29 @@
 var host = window.location.hostname;
-console.log(window.location);
+console.log('Window location',window.location);
 var port = window.location.port;
-const socket = io(host+':'+port);
+const socket = io('/browsers');
 
 console.log('Connection to Websocket at port', port);
 
 socket.on('spot taken', (spotID) =>{
-        console.log('Parking slot',spotID, 'has been taken');
-        $('#car'+spotID).removeClass("free");
-	$('#spot'+spotID).addClass("taken");
+    console.log('Parking slot',spotID, 'has been taken');
+    $('#car'+spotID).removeClass("free");
+    $('#spot'+spotID).addClass("taken");
 });
 
 socket.on('spot free', (spotID) =>{
-        console.log('Parking slot',spotID, 'is free again');
-        $('#car'+spotID).addClass("free");
-	$('#spot'+spotID).removeClass("taken");
+    console.log('Parking slot',spotID, 'is free again');
+    $('#car'+spotID).addClass("free");
+    $('#spot'+spotID).removeClass("taken");
+});
+
+socket.on('image received', (image,text) =>{
+    console.log('Image has been taken');
+    console.log('Text read',text);
 });
 
 socket.on('disconnect', () => {
-        console.log('Server has been disconnected.');
-        socket.disconnect(0);
+    console.log('Server has been disconnected.');
+    socket.disconnect(0);
 });
 
