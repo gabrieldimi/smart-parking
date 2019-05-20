@@ -5,7 +5,8 @@
                 "port" : "9999",
 		"amount_of_sensors" : 2,
 		"max_amount_of_sensors" : 10,
-		"time_to_sleep_for_dummies" : 1500
+		"time_to_sleep_for_dummies" : 1500,
+		"no_sensors_plugged_on" : true
         }
 
 }
