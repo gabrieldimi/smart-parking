@@ -2,6 +2,7 @@ const express = require('express');
 const args = require('./args.json').arguments;
 var app = express();
 var fs = require('fs');
+var ip = require('ip');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 let {PythonShell} = require('python-shell');
@@ -25,7 +26,7 @@ console.log("Sleeping time between readings of dummies:",dummySleepingTime,"sec(
 app.set('view engine', 'pug');
 
 server.listen(args.port, () => {
-	console.log(`Express running → ADDRESS ${server.address().address} on PORT ${server.address().port}`);
+	console.log(`Express running → ADDRESS ${ip.address()} on PORT ${server.address().port}`);
 });
 
 //serve static files from the public folder
