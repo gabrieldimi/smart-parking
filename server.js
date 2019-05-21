@@ -89,6 +89,7 @@ if(!noSernorsPluggedOn){
 		
 		console.log('New app socket is connected',socket.id);
 		socket.on('image taken', (image,text) => {
+			console.log('Image was taken from app', this.id);
 			nspBrowsers.emit('image received', image,text);
 		});
 		
