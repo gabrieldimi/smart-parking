@@ -38,8 +38,8 @@ body {
 }
 
 #main { 
-  display: grid; 
-  grid-template-columns:18% 1fr 18%; 
+  display: grid;
+  grid-template-columns:20% 50fr; 
 }
 
 #left {   
@@ -47,7 +47,8 @@ body {
   height: 26.5em;
   border: 2px solid #122769;
   position: relative;
-  left:5%;
+  top: 1%;
+  left:10%;
 }
 #left:after {
   content: '';
@@ -72,12 +73,8 @@ body {
 #center{
   text-align:center;
   margin-top:-200px;
-
-  max-width: 80%;
-  max-height:80%;
-}
-#right {
-   
+  max-width: 100%;
+  max-height:100%;
 }
 
 .list-type{
