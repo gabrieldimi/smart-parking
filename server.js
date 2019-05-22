@@ -6,6 +6,12 @@ var ip = require('ip');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 let {PythonShell} = require('python-shell');
+let { TesseractWorker } = require('tesseract.js');
+const worker = new TesseractWorker();
+
+worker.recognize('./test.png')
+  .progress((p) => { console.log('progress', p);    })
+  .then((result) => { console.log('result', result); });
 
 const nspBrowsers = io.of('/browsers');
 const nspApps = io.of('/apps');
@@ -89,12 +95,12 @@ if(!noSernorsPluggedOn){
 		
 		console.log('New app socket is connected',socket.id);
 		socket.on('image taken', (image,text) => {
-			console.log('Image was taken from app', this.id);
+			console.log('Image was taken from app');
 			nspBrowsers.emit('image received', image,text);
 		});
 		
-		socket.on('disconnect', (socket) => {
-      		console.log('App is disconnected', socket.id);
+		socket.on('disconnect', () => {
+      		console.log('App is disconnected');
 		});
 	});
 	

@@ -11,6 +11,7 @@
     "pug": "^2.0.3",
     "python-shell": "^1.0.7",
     "socket.io": "^2.2.0",
+    "tesseract.js": "^2.0.0-alpha.8",
     "wavetape": "^0.2.3"
   }
 }

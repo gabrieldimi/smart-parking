@@ -19,6 +19,8 @@ socket.on('spot free', (spotID) =>{
 
 socket.on('image received', (image,text) =>{
     console.log('Image has been taken');
+    var image = document.getElementById('licenseplate');
+    image.setAttribute('xlink:href',image);
     console.log('Text read',text);
 });
 
