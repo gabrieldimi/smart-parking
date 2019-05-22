@@ -3,6 +3,10 @@ console.log('Window location',window.location);
 var port = window.location.port;
 const socket = io('/browsers');
 
+var addListItem = function( txt ) {
+    $("#platelist").append( '<li>' + txt + '</li>' );
+};
+
 console.log('Connection to Websocket at port', port);
 
 socket.on('spot taken', (spotID) =>{
@@ -21,11 +25,10 @@ socket.on('image received', (image,text) =>{
     console.log('Image has been taken');
     var image = document.getElementById('licenseplate');
     image.setAttribute('xlink:href',image);
-    console.log('Text read',text);
+    addListItem(text);
 });
 
 socket.on('disconnect', () => {
     console.log('Server has been disconnected.');
     socket.disconnect(0);
 });
-

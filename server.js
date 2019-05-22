@@ -6,12 +6,6 @@ var ip = require('ip');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 let {PythonShell} = require('python-shell');
-let { TesseractWorker } = require('tesseract.js');
-const worker = new TesseractWorker();
-
-worker.recognize('./test.png')
-  .progress((p) => { console.log('progress', p);    })
-  .then((result) => { console.log('result', result); });
 
 const nspBrowsers = io.of('/browsers');
 const nspApps = io.of('/apps');
