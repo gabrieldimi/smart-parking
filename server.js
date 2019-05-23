@@ -98,7 +98,7 @@ if(!noSernorsPluggedOn){
 			console.log('Image was taken from app with number', plateListCounterOld);
       if(plateListCounterOld == licensePlateListItemCounter){
 			  nspBrowsers.emit('image received', image,text,spotNumber,licensePlateListItemCounter);
-      }eles{
+      }else{
         console.log('Car with license plate',text,'just came and went');
       }
 		});

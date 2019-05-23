@@ -37,8 +37,8 @@ socket.on('spot free', (spotID,counter) =>{
 
 socket.on('image received', (image,text,spotNumber,counter) =>{
     console.log('Image has been taken');
-    let imgElem = document.getElementById('licenseplate');
-    imgElem.setAttribute('xlink:href',image);
+    let imgElement = document.getElementById('licenseplate');
+    imgElement.setAttribute('xlink:href',image);
     addListItem(text,counter,spotNumber);
 });
 
