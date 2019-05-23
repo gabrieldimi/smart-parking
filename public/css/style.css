@@ -138,6 +138,11 @@ color:#FFF;
 }
 
 
+.scaleOut {
+  transform: scale(2,2) translate(-8px,-15px);
+  transition: all .2s ease-in-out;
+}
+
 .free{
 	visibility: hidden;
 }

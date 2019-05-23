@@ -3,9 +3,22 @@ console.log('Window location',window.location);
 var port = window.location.port;
 const socket = io('/browsers');
 
-var addListItem = function( txt ) {
-    $("#platelist").append( '<li>' + txt + '</li>' );
+
+function addListItem( txt, counter, spotNumber) {
+    $("#platelist").append( `<li id='plate${counter}'>` + txt + `</li>` );
+    $("#plate"+counter).mouseenter( function(){
+        $('#parkingSlotGroup'+counter).addClass('scaleOut');
+    }).mouseleave( function(){
+        $('#parkingSlotGroup'+counter).removeClass('scaleOut');
+    });
 };
+
+function removeListItem(counter ) {
+    $("#plate" + counter).detach();
+};
+
+
+
 
 console.log('Connection to Websocket at port', port);
 
@@ -15,17 +28,18 @@ socket.on('spot taken', (spotID) =>{
     $('#spot'+spotID).addClass("taken");
 });
 
-socket.on('spot free', (spotID) =>{
+socket.on('spot free', (spotID,counter) =>{
     console.log('Parking slot',spotID, 'is free again');
     $('#car'+spotID).addClass("free");
     $('#spot'+spotID).removeClass("taken");
+    removeListItem(counter);
 });
 
-socket.on('image received', (image,text) =>{
+socket.on('image received', (image,text,spotNumber,counter) =>{
     console.log('Image has been taken');
-    var image = document.getElementById('licenseplate');
-    image.setAttribute('xlink:href',image);
-    addListItem(text);
+    let imgElem = document.getElementById('licenseplate');
+    imgElem.setAttribute('xlink:href',image);
+    addListItem(text,counter,spotNumber);
 });
 
 socket.on('disconnect', () => {

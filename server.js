@@ -17,6 +17,9 @@ let maxAmountOfSensors = args.max_amount_of_sensors;
 let dummySleepingTime = args.time_to_sleep_for_dummies;
 let noSernorsPluggedOn = args.no_sensors_plugged_on;
 
+
+let licensePlateListItemCounter = 1;
+
 console.log("Distance:",measuringDistance,"cm");
 console.log("Amount of sensors:",amountOfSensors);
 console.log("Sleeping time between readings of sensors:",sensorSleepingtime,"sec(s)");
@@ -66,21 +69,24 @@ if(!noSernorsPluggedOn){
 				if(distance <= measuringDistance){
 				        if(!row[2]){
 				                nspBrowsers.emit('spot taken',row[1]);
-								nspApps.emit('take picture');
+                        licensePlateListItemCounter ++;
+								        nspApps.emit('take picture',row[1]);
 				                row[2] = true;
 				                row[3] = false;
 				        }
 				}else if(distance > measuringDistance){
 				        if(!row[3]){
-				                nspBrowsers.emit('spot free', row[1]);
-				                row[3] = true;
+                        licensePlateListItemCounter --;
+				                nspBrowsers.emit('spot free', row[1],licensePlateListItemCounter);
+                        row[3] = true;
 				                row[2] = false;
 				        }
 				}
+        console.log('License plate counter', licensePlateListItemCounter);
 			});
 		});
 		if(amountOfSensors < maxAmountOfSensors){
-			simulation(maxAmountOfSensors - amountOfSensors,amountOfSensors,dummySleepingTime);
+			//simulation(maxAmountOfSensors - amountOfSensors,amountOfSensors,dummySleepingTime);
 		}
 
 	});
@@ -88,13 +94,13 @@ if(!noSernorsPluggedOn){
 	nspApps.on('connection', (socket) => {
 		
 		console.log('New app socket is connected',socket.id);
-		socket.on('image taken', (image,text) => {
+		socket.on('image taken', (image,text,spotNumber) => {
 			console.log('Image was taken from app');
-			nspBrowsers.emit('image received', image,text);
+			nspBrowsers.emit('image received', image,text,spotNumber,licensePlateListItemCounter);
 		});
 		
 		socket.on('disconnect', () => {
-      		console.log('App is disconnected');
+      console.log('App is disconnected');
 		});
 	});
 	
