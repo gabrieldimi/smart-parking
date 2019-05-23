@@ -70,14 +70,14 @@ if(!noSernorsPluggedOn){
 				        if(!row[2]){
 				                nspBrowsers.emit('spot taken',row[1]);
                         licensePlateListItemCounter ++;
-								        nspApps.emit('take picture',row[1]);
+								        nspApps.emit('take picture',row[1],licensePlateListItemCounter);
 				                row[2] = true;
 				                row[3] = false;
 				        }
 				}else if(distance > measuringDistance){
 				        if(!row[3]){
-                        licensePlateListItemCounter --;
 				                nspBrowsers.emit('spot free', row[1],licensePlateListItemCounter);
+                        licensePlateListItemCounter --;
                         row[3] = true;
 				                row[2] = false;
 				        }
@@ -94,9 +94,13 @@ if(!noSernorsPluggedOn){
 	nspApps.on('connection', (socket) => {
 		
 		console.log('New app socket is connected',socket.id);
-		socket.on('image taken', (image,text,spotNumber) => {
-			console.log('Image was taken from app');
-			nspBrowsers.emit('image received', image,text,spotNumber,licensePlateListItemCounter);
+		socket.on('image taken', (image,text,spotNumber,plateListCounterOld) => {
+			console.log('Image was taken from app with number', plateListCounterOld);
+      if(plateListCounterOld == licensePlateListItemCounter){
+			  nspBrowsers.emit('image received', image,text,spotNumber,licensePlateListItemCounter);
+      }eles{
+        console.log('Car with license plate',text,'just came and went');
+      }
 		});
 		
 		socket.on('disconnect', () => {
