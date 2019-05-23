@@ -31,6 +31,7 @@ socket.on('spot taken', (spotID) =>{
 socket.on('spot free', (spotID,counter) =>{
     console.log('Parking slot',spotID, 'is free again');
     $('#car'+spotID).addClass("free");
+    $('licenseplate').addClass("free");
     $('#spot'+spotID).removeClass("taken");
     removeListItem(counter);
 });
@@ -39,6 +40,7 @@ socket.on('image received', (image,text,spotNumber,counter) =>{
     console.log('Image has been taken');
     let imgElement = document.getElementById('licenseplate');
     imgElement.setAttribute('xlink:href',image);
+    imgElement.classList.remove('free');
     addListItem(text,counter,spotNumber);
 });
 
