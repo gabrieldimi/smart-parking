@@ -3,7 +3,6 @@ console.log('Window location',window.location);
 var port = window.location.port;
 const socket = io('/browsers');
 
-
 function addListItem( txt, counter, spotNumber) {
     $("#platelist").append( `<li id='plate${counter}'>` + txt + `</li>` );
     $("#plate"+counter).mouseenter( function(){
@@ -17,9 +16,6 @@ function removeListItem(counter ) {
     $("#plate" + counter).detach();
 };
 
-
-
-
 console.log('Connection to Websocket at port', port);
 
 socket.on('spot taken', (spotID) =>{
@@ -31,7 +27,7 @@ socket.on('spot taken', (spotID) =>{
 socket.on('spot free', (spotID,counter) =>{
     console.log('Parking slot',spotID, 'is free again');
     $('#car'+spotID).addClass("free");
-    $('licenseplate').addClass("free");
+    $('.licenseplate').addClass("free");
     $('#spot'+spotID).removeClass("taken");
     removeListItem(counter);
 });
