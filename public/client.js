@@ -27,7 +27,7 @@ socket.on('spot taken', (spotID) =>{
 socket.on('spot free', (spotID,counter) =>{
     console.log('Parking slot',spotID, 'is free again');
     $('#car'+spotID).addClass("free");
-    $('.licenseplate').addClass("free");
+    $('#licenseplate').addClass("free");
     $('#spot'+spotID).removeClass("taken");
     removeListItem(counter);
 });

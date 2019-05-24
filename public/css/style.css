@@ -42,9 +42,11 @@ body {
   grid-template-columns:20% 50fr; 
 }
 
-#left {   
-  width: 90%;
-  height: 26.5em;
+#left {  
+  height:auto;
+  max-height: 600px;
+  min-height: 200px;
+  width: 100%; 
   border: 2px solid #122769;
   position: relative;
   top: 1%;
@@ -70,6 +72,14 @@ body {
   border: 5px solid white;
 }
 
+h2 {
+ font-size: 30px;
+ font-family: Helvetica, sans-serif;
+ font-weight: bold;
+ text-align: center;
+ margin-top: 20px;
+}
+
 #center{
   text-align:center;
   margin-top:-200px;
@@ -78,7 +88,8 @@ body {
 }
 
 .list-type{
-width:60%;
+min-width:30%;
+max-width:65%;
 margin:0 auto;
 }
 
@@ -86,7 +97,7 @@ margin:0 auto;
 counter-reset: li;
 list-style: none;
 *list-style: decimal;
-font-size: 15px;
+font-size: 18px;
 font-family: 'Raleway', sans-serif;
 padding: 5px;
 margin-bottom: 4em;
