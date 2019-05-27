@@ -2,29 +2,25 @@
    #STYLES
    ========================================================================== */
 
-html {
-  box-sizing: border-box;
-}
+   html {
+    box-sizing: border-box;
+  }
 
-*, *::before, *::after {
-  box-sizing: inherit; /* [1] */
-  margin: 0;
-  padding: 0;
-}
-
-
+  *, *::before, *::after {
+    box-sizing: inherit; /* [1] */
+    margin: 0;
+    padding: 0;
+  }
 
 /* FONTS
-   ========================================================================== */
+========================================================================== */
 
 body {
   font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif; /* [2] */
 }
 
-
-
 /* Header
-   ========================================================================== */
+========================================================================== */
 
 .header {
   width: 100%;
@@ -89,66 +85,65 @@ h2 {
 }
 
 .list-type{
-min-width:30%;
-max-width:65%;
-margin:0 auto;
+  min-width:30%;
+  max-width:65%;
+  margin:0 auto;
 }
 
 .list-type ol{
-counter-reset: li;
-list-style: none;
-*list-style: decimal;
-font-size: 18px;
-font-family: 'Raleway', sans-serif;
-padding: 5px;
-margin-bottom: 4em;
+  counter-reset: li;
+  list-style: none;
+  *list-style: decimal;
+  font-size: 18px;
+  font-family: 'Raleway', sans-serif;
+  padding: 5px;
+  margin-bottom: 4em;
 }
 .list-type ol ol{
-margin: 0 0 0 2em;
+  margin: 0 0 0 2em;
 }
 
 .list-type li{
-position: relative;
-display: block;
-padding: .4em .4em .4em 2em;
-*padding: .4em;
-margin: .5em 0;
-background: #93C775;
-color: #000;
-text-decoration: none;
--moz-border-radius: .3em;
--webkit-border-radius: .3em;
-border-radius: 10em;
-transition: all .2s ease-in-out;
-text-align:center;
+  position: relative;
+  display: block;
+  padding: .4em .4em .4em 2em;
+  *padding: .4em;
+  margin: .5em 0;
+  background: #93C775;
+  color: #000;
+  text-decoration: none;
+  -moz-border-radius: .3em;
+  -webkit-border-radius: .3em;
+  border-radius: 10em;
+  transition: all .2s ease-in-out;
+  text-align:center;
 }
 
 .list-type li:hover{
-background: #d6d4d4;
-text-decoration:none;
-transform: scale(1.5,1.5);
+  background: #d6d4d4;
+  text-decoration:none;
+  transform: scale(1.5,1.5);
 }
 
 .list-type li:before{
-content: counter(li);
-counter-increment: li;
-position: absolute;
-left: -1.3em;
-top: 50%;
-margin-top: -1.3em;
-background:#122769;
-height: 2em;
-width: 2em;
-line-height: 2em;
-border: .3em solid #fff;
-text-align: center;
-font-weight: bold;
--moz-border-radius: 2em;
--webkit-border-radius: 2em;
-border-radius: 2em;
-color:#FFF;
+  content: counter(li);
+  counter-increment: li;
+  position: absolute;
+  left: -1.3em;
+  top: 50%;
+  margin-top: -1.3em;
+  background:#122769;
+  height: 2em;
+  width: 2em;
+  line-height: 2em;
+  border: .3em solid #fff;
+  text-align: center;
+  font-weight: bold;
+  -moz-border-radius: 2em;
+  -webkit-border-radius: 2em;
+  border-radius: 2em;
+  color:#FFF;
 }
-
 
 .scaleOut {
   transform: scale(2,2) translate(-8px,-15px);
@@ -169,8 +164,3 @@ color:#FFF;
 	max-width: 50px;
 	max-height:100px;
 }
-
-
-
-
-

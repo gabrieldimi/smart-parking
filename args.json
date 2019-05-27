@@ -1,13 +1,11 @@
 {
-        "arguments" : {
-                "distance" : 20.0,
-                "time_to_sleep" : 1.0,
-                "port" : "9999",
+	"arguments" : {
+		"distance" : 20.0,
+		"time_to_sleep" : 1.0,
+		"port" : "9999",
 		"amount_of_sensors" : 1,
 		"max_amount_of_sensors" : 10,
 		"time_to_sleep_for_dummies" : 1500,
 		"no_sensors_plugged_on" : false
-        }
-
+	}
 }
-

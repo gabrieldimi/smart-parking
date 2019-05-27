@@ -1,43 +1,63 @@
-var host = window.location.hostname;
+let host = window.location.hostname;
 console.log('Window location',window.location);
-var port = window.location.port;
+let port = window.location.port;
 const socket = io('/browsers');
-
-function addListItem( txt, counter, spotNumber) {
-    $("#platelist").append( `<li id='plate${counter}'>` + txt + `</li>` );
-    $("#plate"+counter).mouseenter( function(){
-        $('#parkingSlotGroup'+counter).addClass('scaleOut');
-    }).mouseleave( function(){
-        $('#parkingSlotGroup'+counter).removeClass('scaleOut');
-    });
-};
-
-function removeListItem(counter ) {
-    $("#plate" + counter).detach();
-};
 
 console.log('Connection to Websocket at port', port);
 
-socket.on('spot taken', (spotID) =>{
-    console.log('Parking slot',spotID, 'has been taken');
-    $('#car'+spotID).removeClass("free");
-    $('#spot'+spotID).addClass("taken");
-});
+function addListItem( parkingSpotIdNumber, text, licensePlateListCounter ) {
+    $("#platelist").append( `<li id='plate${licensePlateListCounter}'>` + text + `</li>` );
+    $("#plate"+licensePlateListCounter).mouseenter( function(){
+        $('#parkingSlotGroup'+parkingSpotIdNumber).addClass('scaleOut');
+    }).mouseleave( function(){
+        $('#parkingSlotGroup'+parkingSpotIdNumber).removeClass('scaleOut');
+    });
+};
+ 
+function removeListItem( licensePlateListCounter ) {
+    $("#plate" + licensePlateListCounter).detach();
+};
 
-socket.on('spot free', (spotID,counter) =>{
-    console.log('Parking slot',spotID, 'is free again');
-    $('#car'+spotID).addClass("free");
-    $('#licenseplate').addClass("free");
-    $('#spot'+spotID).removeClass("taken");
-    removeListItem(counter);
-});
-
-socket.on('image received', (image,text,spotNumber,counter) =>{
-    console.log('Image has been taken');
+function addImage( image ) {
     let imgElement = document.getElementById('licenseplate');
     imgElement.setAttribute('xlink:href',image);
     imgElement.classList.remove('free');
-    addListItem(text,counter,spotNumber);
+};
+
+function addCar( parkingSpotIdNumber ){
+    $('#car'+parkingSpotIdNumber).removeClass("free");
+    $('#spot'+parkingSpotIdNumber).addClass("taken");
+}
+
+socket.on('updateSmartPark', ( dataForBrowserUpdate, latestLicensePlateImage ) => {
+    console.log('Searching for data for update...');
+    console.log('Smart park being updated...');
+    addImage( latestLicensePlateImage );
+    dataForBrowserUpdate.forEach((row)=>{
+        //Row contains respectively: parking spot number, image text (license plate), and license plate list number
+        addListItem( row[0], row[1], row[2] );
+        addCar(row[0]);
+    });
+
+});
+
+socket.on('spot taken', ( parkingSpotIdNumber ) =>{
+    console.log('Parking slot',parkingSpotIdNumber, 'has been taken');
+    addCar( parkingSpotIdNumber );
+});
+
+socket.on('spot free', ( parkingSpotIdNumber, licensePlateListCounter ) =>{
+    console.log('Parking slot',parkingSpotIdNumber, 'is free again');
+    $('#car'+parkingSpotIdNumber).addClass("free");
+    $('#licenseplate').addClass("free");
+    $('#spot'+parkingSpotIdNumber).removeClass("taken");
+    removeListItem( licensePlateListCounter );
+});
+
+socket.on('image received', ( image, text, parkingSpotIdNumber, licensePlateListCounter ) =>{
+    console.log('Image has been taken');
+    addImage( image );
+    addListItem( text, parkingSpotIdNumber, licensePlateListCounter );
 });
 
 socket.on('disconnect', () => {

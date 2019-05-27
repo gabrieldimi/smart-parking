@@ -42,5 +42,3 @@ if __name__ == '__main__':
 			sensorMeasuring(trigger,echo,sleep_time)
 	finally:
 		GPIO.cleanup()
-
-	
