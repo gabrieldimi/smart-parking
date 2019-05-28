@@ -43,7 +43,7 @@ app.get('/', (req,res) => {
 if(!noSernorsPluggedOn){
 
 	let latestLicensePlateImage = "";
-	let licensePlateListItemCounter = 0;
+	let licensePlateListItemCounter = 1;
 	let connectionToAtleastOneBrowserEstablished = false;
 	let parkingSlotArray = [];
 	let sensorTrigger = 7;
@@ -76,7 +76,7 @@ if(!noSernorsPluggedOn){
 		console.log('New browser socket is connected',socket.id);
 		
 		if(!connectionToAtleastOneBrowserEstablished){
-			console.log('Starting python shell for',amountOfSensors,'sensors');
+			console.log('Starting python shell for',amountOfSensors,'sensor(s)');
 			
 			parkingSlotArray.forEach((row)=>{
 				row[0].on('message', function(distance){
@@ -109,15 +109,15 @@ if(!noSernorsPluggedOn){
 			connectionToAtleastOneBrowserEstablished = true;
 
 		}else{
-			console.log('Python scripts are running for',amountOfSensors,'sensors');
+			console.log('Python scripts are running for',amountOfSensors,'sensor(s)');
 			
 			console.log('Checking if browser has missed any parking action...');
 
 			let dataForBrowserUpdate = [];
 			parkingSlotArray.forEach((row)=>{
 				//see above for details to row
-				if(row[4].length > 0){
-					dataForBrowserUpdate.push(row[1],row[4],row[5]);
+				if(row[4] !== ""){
+					dataForBrowserUpdate.push([row[1],row[4],row[5]]);
 				}
 			});
 			socket.emit('updateSmartPark',dataForBrowserUpdate,latestLicensePlateImage);
@@ -137,15 +137,15 @@ if(!noSernorsPluggedOn){
 		
 		console.log('New app socket is connected',socket.id);
 		socket.on('image taken', (image,text,parkingSpotIdNumber,plateListIdNumberCache) => {
-			console.log('Image was taken from app from license plate number', plateListIdNumberCache);
+			console.log('Image was taken from app from license plate of spot', parkingSpotIdNumber);
 
 			// This next condition is only true if car stays parked, because if it goes away,
 			// the license plate number (see above: row[5] = 0) is set back to 0 (the default value)
-			if(plateListIdNumberCache == parkingSlotArray[parkingSpotIdNumber][5]){
+			if(plateListIdNumberCache == parkingSlotArray[parkingSpotIdNumber-1][5]){
 				nspBrowsers.emit('image received', image,text,parkingSpotIdNumber,plateListIdNumberCache);
 				// Optional TODO: save each image either way
 				latestLicensePlateImage = image;
-				parkingSlotArray[parkingSpotIdNumber][4] = text;
+				parkingSlotArray[parkingSpotIdNumber-1][4] = text;
 			}else{
 				console.log('Car at spot',parkingSpotIdNumber,'with license plate',text,'just came and went');
 			}

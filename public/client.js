@@ -1,11 +1,12 @@
 let host = window.location.hostname;
-console.log('Window location',window.location);
+console.log('Window location',window.location,'on host',host);
 let port = window.location.port;
 const socket = io('/browsers');
 
 console.log('Connection to Websocket at port', port);
 
 function addListItem( parkingSpotIdNumber, text, licensePlateListCounter ) {
+	console.log('Adding text for spot number',parkingSpotIdNumber,':',text)
     $("#platelist").append( `<li id='plate${licensePlateListCounter}'>` + text + `</li>` );
     $("#plate"+licensePlateListCounter).mouseenter( function(){
         $('#parkingSlotGroup'+parkingSpotIdNumber).addClass('scaleOut');
@@ -33,6 +34,7 @@ socket.on('updateSmartPark', ( dataForBrowserUpdate, latestLicensePlateImage ) =
     console.log('Searching for data for update...');
     console.log('Smart park being updated...');
     addImage( latestLicensePlateImage );
+    console.log('length of update data',dataForBrowserUpdate.length);
     dataForBrowserUpdate.forEach((row)=>{
         //Row contains respectively: parking spot number, image text (license plate), and license plate list number
         addListItem( row[0], row[1], row[2] );
@@ -55,9 +57,9 @@ socket.on('spot free', ( parkingSpotIdNumber, licensePlateListCounter ) =>{
 });
 
 socket.on('image received', ( image, text, parkingSpotIdNumber, licensePlateListCounter ) =>{
-    console.log('Image has been taken');
+    console.log('Image has been taken by spot', parkingSpotIdNumber);
     addImage( image );
-    addListItem( text, parkingSpotIdNumber, licensePlateListCounter );
+    addListItem( parkingSpotIdNumber, text, licensePlateListCounter );
 });
 
 socket.on('disconnect', () => {
