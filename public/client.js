@@ -53,6 +53,9 @@ socket.on('spot free', ( parkingSpotIdNumber, licensePlateListCounter ) =>{
     $('#car'+parkingSpotIdNumber).addClass("free");
     $('#licenseplate').addClass("free");
     $('#spot'+parkingSpotIdNumber).removeClass("taken");
+    if($('#parkingSlotGroup'+parkingSpotIdNumber).hasClass('scaleOut')){
+        $('#parkingSlotGroup'+parkingSpotIdNumber).removeClass('scaleOut');   
+    }
     removeListItem( licensePlateListCounter );
 });
 
@@ -64,5 +67,5 @@ socket.on('image received', ( image, text, parkingSpotIdNumber, licensePlateList
 
 socket.on('disconnect', () => {
     console.log('Server has been disconnected.');
-    socket.disconnect(0);
+    socket.disconnect();
 });

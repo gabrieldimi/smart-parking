@@ -21,11 +21,14 @@ def sensorMeasuring(trigger_pin,echo_pin,time_to_sleep):
 	time.sleep(0.00001)
 		
 	GPIO.output(trigger_pin, GPIO.LOW)
+	
+	global pulse_start_time
+	global pulse_end_time
 
 	while GPIO.input(echo_pin) == 0:
 		pulse_start_time = time.time()
 	while GPIO.input(echo_pin) == 1:
-		pulse_end_time = time.time();
+		pulse_end_time = time.time()
 		
 	pulse_duration = pulse_end_time - pulse_start_time
 	distance = round(pulse_duration * 17150, 2)

@@ -43,7 +43,7 @@ app.get('/', (req,res) => {
 if(!noSernorsPluggedOn){
 
 	let latestLicensePlateImage = "";
-	let licensePlateListItemCounter = 1;
+	let licensePlateListItemCounter = amountOfSensors;
 	let connectionToAtleastOneBrowserEstablished = false;
 	let parkingSlotArray = [];
 	let sensorTrigger = 7;
@@ -70,58 +70,22 @@ if(!noSernorsPluggedOn){
 		sensorTrigger += 6;
 		sensorEcho += 4;
 	}
-	
+
+	startPythonScripts(parkingSlotArray,licensePlateListItemCounter);
+
 	nspBrowsers.on('connection', (socket) => {
 		
 		console.log('New browser socket is connected',socket.id);
-		
-		if(!connectionToAtleastOneBrowserEstablished){
-			console.log('Starting python shell for',amountOfSensors,'sensor(s)');
-			
-			parkingSlotArray.forEach((row)=>{
-				row[0].on('message', function(distance){
+		console.log('Checking if browser has missed any parking action...');
 
-					console.log("Distance measure from sensor",row[1],":",distance);
-
-					if(distance <= measuringDistance){
-						if(!row[2]){
-							nspBrowsers.emit('spot taken',row[1]);
-							licensePlateListItemCounter ++;
-							nspApps.emit('take picture',row[1],licensePlateListItemCounter);
-							row[2] = true;
-							row[3] = false;
-							row[5] = licensePlateListItemCounter;
-						}
-					}else if(distance > measuringDistance){
-						if(!row[3]){
-							nspBrowsers.emit('spot free', row[1],row[5]);
-							licensePlateListItemCounter --;
-							row[2] = false;
-							row[3] = true;
-							row[4] = "";
-							row[5] = 0;
-
-						}
-					}
-					console.log('License plate counter', licensePlateListItemCounter);
-				});
-			});
-			connectionToAtleastOneBrowserEstablished = true;
-
-		}else{
-			console.log('Python scripts are running for',amountOfSensors,'sensor(s)');
-			
-			console.log('Checking if browser has missed any parking action...');
-
-			let dataForBrowserUpdate = [];
-			parkingSlotArray.forEach((row)=>{
+		let dataForBrowserUpdate = [];
+		parkingSlotArray.forEach((row)=>{
 				//see above for details to row
 				if(row[4] !== ""){
 					dataForBrowserUpdate.push([row[1],row[4],row[5]]);
 				}
 			});
-			socket.emit('updateSmartPark',dataForBrowserUpdate,latestLicensePlateImage);
-		}
+		socket.emit('updateSmartPark',dataForBrowserUpdate,latestLicensePlateImage);
 		
 		if(amountOfSensors < maxAmountOfSensors){
 			//simulationForDummySensors(maxAmountOfSensors - amountOfSensors,amountOfSensors,dummySleepingTime);
@@ -158,6 +122,43 @@ if(!noSernorsPluggedOn){
 	
 }else{
 	console.log('This is for debugging purposes outside of raspberry PI usage');
+}
+
+
+function startPythonScripts( parkingSlotArray,licensePlateListItemCounter ){
+
+	console.log('Starting python shell for',amountOfSensors,'sensor(s)');
+
+	parkingSlotArray.forEach((row)=>{
+		row[0].on('message', function(distance){
+
+			console.log("Distance measure from sensor",row[1],":",distance);
+
+			if(distance <= measuringDistance){
+				if(!row[2]){
+					nspBrowsers.emit('spot taken',row[1]);
+					licensePlateListItemCounter ++;
+					nspApps.emit('take picture',row[1],licensePlateListItemCounter);
+					row[2] = true;
+					row[3] = false;
+					row[5] = licensePlateListItemCounter;
+				}
+			}else if(distance > measuringDistance){
+				if(!row[3]){
+					nspBrowsers.emit('spot free', row[1],row[5]);
+					licensePlateListItemCounter --;
+					row[2] = false;
+					row[3] = true;
+					row[4] = "";
+					row[5] = 0;
+
+				}
+			}
+			console.log('License plate counter', licensePlateListItemCounter);
+		});
+	});
+
+	console.log('Python scripts are running for',amountOfSensors,'sensor(s)');
 }
 
 function simulationForDummySensors(leftOverSensors, amountOfSensors, time){
