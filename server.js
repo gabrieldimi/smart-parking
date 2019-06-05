@@ -3,6 +3,7 @@ const args = require('./args.json').arguments;
 let app = express();
 let fs = require('fs');
 let ip = require('ip');
+let path = require('path');
 let server = require('http').Server(app);
 let io = require('socket.io')(server);
 let {PythonShell} = require('python-shell');
@@ -25,7 +26,7 @@ console.log("Sleeping time between readings of sensors:",sensorSleepingtime,"sec
 console.log("Sleeping time between readings of dummies:",dummySleepingTime,"sec(s)");
 
 //Using pug engine for viewing html
-app.set('view engine', 'pug');
+//app.set('view engine', 'pug');
 
 server.listen(args.port, () => {
 	console.log(`Express running → ADDRESS ${ip.address()} on PORT ${server.address().port}`);
@@ -35,9 +36,10 @@ server.listen(args.port, () => {
 app.use(express.static(__dirname + '/public'));
 
 app.get('/', (req,res) => {
-	res.render('index',{
-		title: 'Smart parking on 9th floor of DEC'
-	});
+	//res.render('index',{
+	//	title: 'Smart parking on 9th floor of DEC'
+	//});
+	res.sendFile(path.join(__dirname + '/index.html'));
 });
 
 if(!noSernorsPluggedOn){
@@ -90,7 +92,7 @@ if(!noSernorsPluggedOn){
 		if(amountOfSensors < maxAmountOfSensors){
 			//simulationForDummySensors(maxAmountOfSensors - amountOfSensors,amountOfSensors,dummySleepingTime);
 		}
-		
+		 
 		socket.on('disconnect', () => {
 			console.log('Browser has been disconnected');
 		});
@@ -105,7 +107,7 @@ if(!noSernorsPluggedOn){
 
 			// This next condition is only true if car stays parked, because if it goes away,
 			// the license plate number (see above: row[5] = 0) is set back to 0 (the default value)
-			if(plateListIdNumberCache == parkingSlotArray[parkingSpotIdNumber-1][5]){
+			if(plateListIdNumberCache != undefined && plateListIdNumberCache == parkingSlotArray[parkingSpotIdNumber-1][5]){
 				nspBrowsers.emit('image received', image,text,parkingSpotIdNumber,plateListIdNumberCache);
 				// Optional TODO: save each image either way
 				latestLicensePlateImage = image;
