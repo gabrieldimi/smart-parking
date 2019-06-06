@@ -4,6 +4,8 @@ let app = express();
 let fs = require('fs');
 let ip = require('ip');
 let path = require('path');
+let cluster = require('cluster');
+let numCPUs = require('os').cpus().length;
 let server = require('http').Server(app);
 let io = require('socket.io')(server);
 let {PythonShell} = require('python-shell');
@@ -92,7 +94,7 @@ if(!noSernorsPluggedOn){
 		if(amountOfSensors < maxAmountOfSensors){
 			// simulationForDummySensors(maxAmountOfSensors - amountOfSensors,amountOfSensors,dummySleepingTime);
 		}
-		 
+
 		socket.on('disconnect', () => {
 			console.log('Browser has been disconnected');
 		});
@@ -109,7 +111,16 @@ if(!noSernorsPluggedOn){
 			// the license plate number (see above: row[5] = 0) is set back to 0 (the default value)
 			if(plateListIdNumberCache != undefined && plateListIdNumberCache == parkingSlotArray[parkingSpotIdNumber-1][5]){
 				nspBrowsers.emit('license plate received',text,parkingSpotIdNumber,plateListIdNumberCache);
-				nspBrowsers.emit('image received', image);
+				
+				if (cluster.isMaster) {
+				  // Fork workers.
+				  for (var i = 0; i < numCPUs; i++) {
+				  	cluster.fork();
+				  }
+				} else {
+					nspBrowsers.emit('image received', image);
+				}
+				
 				// Optional TODO: save each image either way
 				// latestLicensePlateImage = image;
 				parkingSlotArray[parkingSpotIdNumber-1][4] = text;
