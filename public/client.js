@@ -59,10 +59,13 @@ socket.on('spot free', ( parkingSpotIdNumber, licensePlateListCounter ) =>{
     removeListItem( licensePlateListCounter );
 });
 
-socket.on('image received', ( image, text, parkingSpotIdNumber, licensePlateListCounter ) =>{
+socket.on('license plate received', ( text, parkingSpotIdNumber, licensePlateListCounter ) =>{
     console.log('Image has been taken by spot', parkingSpotIdNumber);
-    addImage( image );
     addListItem( parkingSpotIdNumber, text, licensePlateListCounter );
+});
+
+socket.on('image received', ( image ) =>{
+    addImage( image );
 });
 
 socket.on('disconnect', () => {

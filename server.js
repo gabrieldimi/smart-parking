@@ -8,11 +8,11 @@ let server = require('http').Server(app);
 let io = require('socket.io')(server);
 let {PythonShell} = require('python-shell');
 
-//Namespaces for browser and app socket connections
+// Namespaces for browser and app socket connections
 const nspBrowsers = io.of('/browsers');
 const nspApps = io.of('/apps');
 
-//Passed arguments
+// Passed arguments
 let amountOfSensors = args.amount_of_sensors;
 let sensorSleepingtime = args.time_to_sleep;
 let measuringDistance = args.distance;
@@ -25,20 +25,20 @@ console.log("Amount of sensors:",amountOfSensors);
 console.log("Sleeping time between readings of sensors:",sensorSleepingtime,"sec(s)");
 console.log("Sleeping time between readings of dummies:",dummySleepingTime,"sec(s)");
 
-//Using pug engine for viewing html
-//app.set('view engine', 'pug');
+// Using pug engine for viewing html
+// app.set('view engine', 'pug');
 
 server.listen(args.port, () => {
 	console.log(`Express running → ADDRESS ${ip.address()} on PORT ${server.address().port}`);
 });
 
-//serve static files from the public folder
+// serve static files from the public folder
 app.use(express.static(__dirname + '/public'));
 
 app.get('/', (req,res) => {
-	//res.render('index',{
-	//	title: 'Smart parking on 9th floor of DEC'
-	//});
+	// res.render('index',{
+	//   title: 'Smart parking on 9th floor of DEC'
+	// });
 	res.sendFile(path.join(__dirname + '/index.html'));
 });
 
@@ -68,7 +68,7 @@ if(!noSernorsPluggedOn){
 		*/
 		parkingSlotArray.push([new PythonShell('sensor.py', pythonShellOptions),(i+1),false,false,"",0]);
 
-		//These two following values are for the python script for setting the GPIO IN and OUT, HIGH and LOW 
+		// These two following values are for the python script for setting the GPIO IN and OUT, HIGH and LOW 
 		sensorTrigger += 6;
 		sensorEcho += 4;
 	}
@@ -82,15 +82,15 @@ if(!noSernorsPluggedOn){
 
 		let dataForBrowserUpdate = [];
 		parkingSlotArray.forEach((row)=>{
-				//see above for details to row
+				// see above for details to row
 				if(row[4] !== ""){
 					dataForBrowserUpdate.push([row[1],row[4],row[5]]);
 				}
 			});
-		socket.emit('updateSmartPark',dataForBrowserUpdate,latestLicensePlateImage);
+		socket.emit('updateSmartPark',dataForBrowserUpdate/*,latestLicensePlateImage*/);
 		
 		if(amountOfSensors < maxAmountOfSensors){
-			//simulationForDummySensors(maxAmountOfSensors - amountOfSensors,amountOfSensors,dummySleepingTime);
+			// simulationForDummySensors(maxAmountOfSensors - amountOfSensors,amountOfSensors,dummySleepingTime);
 		}
 		 
 		socket.on('disconnect', () => {
@@ -108,9 +108,10 @@ if(!noSernorsPluggedOn){
 			// This next condition is only true if car stays parked, because if it goes away,
 			// the license plate number (see above: row[5] = 0) is set back to 0 (the default value)
 			if(plateListIdNumberCache != undefined && plateListIdNumberCache == parkingSlotArray[parkingSpotIdNumber-1][5]){
-				nspBrowsers.emit('image received', image,text,parkingSpotIdNumber,plateListIdNumberCache);
+				nspBrowsers.emit('license plate received',text,parkingSpotIdNumber,plateListIdNumberCache);
+				nspBrowsers.emit('image received', image);
 				// Optional TODO: save each image either way
-				latestLicensePlateImage = image;
+				// latestLicensePlateImage = image;
 				parkingSlotArray[parkingSpotIdNumber-1][4] = text;
 			}else{
 				console.log('Car at spot',parkingSpotIdNumber,'with license plate',text,'just came and went');
