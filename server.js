@@ -111,19 +111,11 @@ if(!noSernorsPluggedOn){
 			// the license plate number (see above: row[5] = 0) is set back to 0 (the default value)
 			if(plateListIdNumberCache != undefined && plateListIdNumberCache == parkingSlotArray[parkingSpotIdNumber-1][5]){
 				nspBrowsers.emit('license plate received',text,parkingSpotIdNumber,plateListIdNumberCache);
-				
-				if (cluster.isMaster) {
-				  // Fork workers.
-				  for (var i = 0; i < numCPUs; i++) {
-				  	cluster.fork();
-				  }
-				} else {
-					nspBrowsers.emit('image received', image);
-				}
-				
+				nspBrowsers.emit('image received', image);
 				// Optional TODO: save each image either way
 				// latestLicensePlateImage = image;
 				parkingSlotArray[parkingSpotIdNumber-1][4] = text;
+				console.log('Still working here');
 			}else{
 				console.log('Car at spot',parkingSpotIdNumber,'with license plate',text,'just came and went');
 			}

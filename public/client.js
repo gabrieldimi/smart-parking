@@ -30,10 +30,10 @@ function addCar( parkingSpotIdNumber ){
     $('#spot'+parkingSpotIdNumber).addClass("taken");
 }
 
-socket.on('updateSmartPark', ( dataForBrowserUpdate, latestLicensePlateImage ) => {
+socket.on('updateSmartPark', ( dataForBrowserUpdate /*, latestLicensePlateImage*/ ) => {
     console.log('Searching for data for update...');
     console.log('Smart park being updated...');
-    addImage( latestLicensePlateImage );
+    //addImage( latestLicensePlateImage );
     console.log('length of update data',dataForBrowserUpdate.length);
     dataForBrowserUpdate.forEach((row)=>{
         //Row contains respectively: parking spot number, image text (license plate), and license plate list number
