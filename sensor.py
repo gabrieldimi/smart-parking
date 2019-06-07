@@ -7,7 +7,7 @@ def sensorInitialize(trigger_pin,echo_pin):
 	#Matching the pin to the GPIO slots
 	GPIO.setup(trigger_pin, GPIO.OUT)
 	GPIO.setup(echo_pin, GPIO.IN)
-
+	#GPIO.setwarnings(False)
 
 def sensorMeasuring(trigger_pin,echo_pin,time_to_sleep):
 	GPIO.output(trigger_pin, GPIO.LOW)
@@ -37,12 +37,14 @@ def sensorMeasuring(trigger_pin,echo_pin,time_to_sleep):
 
 if __name__ == '__main__':
 	try:
-		trigger = int(sys.argv[1],10)
-		echo = int(sys.argv[2],10)
-		sleep_time = float(sys.argv[3])
-		sensorInitialize(trigger,echo)
-		while True:
-			sensorMeasuring(trigger,echo,sleep_time)
-	finally:
-		GPIO.cleanup()
-
+		try:
+			trigger = int(sys.argv[1],10)
+			echo = int(sys.argv[2],10)
+			sleep_time = float(sys.argv[3])
+			sensorInitialize(trigger,echo)
+			while True:
+				sensorMeasuring(trigger,echo,sleep_time)
+		finally:
+			GPIO.cleanup()
+	except:
+		sys.stderr.write("Oops!",sys.exc_info()[0],"occured.\n")

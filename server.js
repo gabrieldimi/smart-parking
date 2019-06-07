@@ -52,6 +52,7 @@ if(!noSernorsPluggedOn){
 	let parkingSlotArray = [];
 	let sensorTrigger = 7;
 	let sensorEcho = 11;
+	let timeFromLastMessageFromSensor;
 
 	for (var i = 0; i < amountOfSensors; i++){
 		let pythonShellOptions = {
@@ -75,7 +76,19 @@ if(!noSernorsPluggedOn){
 		sensorEcho += 4;
 	}
 
+
 	startPythonScripts(parkingSlotArray,licensePlateListItemCounter);
+
+	setInterval(function() {
+	  console.log('Server still running');
+	  if((Date.now() -timeFromLastMessageFromSensor) >7500){
+	  	parkingSlotArray.forEach((row)=>{
+	  		row[0] = new PythonShell('sensor.py', pythonShellOptions);
+	  	});
+	  	licensePlateListItemCounter = amountOfSensors;
+	  	startPythonScripts(parkingSlotArray,licensePlateListItemCounter);
+	  }
+	}, 5000);
 
 	nspBrowsers.on('connection', (socket) => {
 		
@@ -121,6 +134,12 @@ if(!noSernorsPluggedOn){
 			}
 		});
 		
+		socket.on('no car detected', (parkingSpotIdNumber,plateListIdNumberCache) => {
+			console.log('No car at',parkingSpotIdNumber,'detected, trying again.');
+			if(parkingSlotArray[parkingSpotIdNumber-1][2]){
+				nspApps.emit('take picture',parkingSpotIdNumber,plateListIdNumberCache);
+			}
+		});
 		socket.on('disconnect', () => {
 			console.log('App has been disconnected');
 		});
@@ -136,7 +155,12 @@ function startPythonScripts( parkingSlotArray,licensePlateListItemCounter ){
 	console.log('Starting python shell for',amountOfSensors,'sensor(s)');
 
 	parkingSlotArray.forEach((row)=>{
+		row[0].on('stderr', function (stderr) {
+			console.log(stderr);
+		});
 		row[0].on('message', function(distance){
+
+			timeFromLastMessageFromSensor = Date.now();
 
 			console.log("Distance measure from sensor",row[1],":",distance);
 
