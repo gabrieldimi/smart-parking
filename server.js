@@ -15,7 +15,7 @@ const nspBrowsers = io.of('/browsers');
 const nspApps = io.of('/apps');
 
 // Passed arguments
-let amountOfSensors = args.amount_of_sensors;
+let numberOfSensor = args.number_of_sensor;
 let sensorSleepingtime = args.time_to_sleep;
 let measuringDistance = args.distance;
 let maxAmountOfSensors = args.max_amount_of_sensors;
@@ -23,8 +23,8 @@ let dummySleepingTime = args.time_to_sleep_for_dummies;
 let noSernorsPluggedOn = args.no_sensors_plugged_on;
 
 console.log("Distance:",measuringDistance,"cm");
-console.log("Amount of sensors:",amountOfSensors);
-console.log("Sleeping time between readings of sensors:",sensorSleepingtime,"sec(s)");
+console.log("Number of sensor:",numberOfSensor);
+console.log("Sleeping time between readings of sensor:",sensorSleepingtime,"sec(s)");
 console.log("Sleeping time between readings of dummies:",dummySleepingTime,"sec(s)");
 
 // Using pug engine for viewing html
@@ -46,149 +46,144 @@ app.get('/', (req,res) => {
 
 if(!noSernorsPluggedOn){
 
-	let latestLicensePlateImage = "";
-	let licensePlateListItemCounter = amountOfSensors;
+	let timeFromLastMessageFromSensor = 0;
 	let connectionToAtleastOneBrowserEstablished = false;
-	let parkingSlotArray = [];
+
+	// These two following values are for the python script for setting the GPIO IN and OUT, HIGH and LOW 
 	let sensorTrigger = 7;
 	let sensorEcho = 11;
-	let timeFromLastMessageFromSensor;
 
-	for (var i = 0; i < amountOfSensors; i++){
-		let pythonShellOptions = {
-			mode: 'text',
-			pythonOptions: ['-u'],
-			args: [sensorTrigger,sensorEcho,Number(sensorSleepingtime),]
-		};
+	let pythonShellOptions = {
+		mode: 'text',
+		pythonOptions: ['-u'],
+		args: [sensorTrigger,sensorEcho,Number(sensorSleepingtime),]
+	};
 
-        /*	The parking slot array is two-dimensional; each row contains the following content:
-		*	1.		A python shell with options (see above),
-		*	2.		ID number of the sensor,
-		*	3./4.	Two boolean values, which are used as a toggle whenever the sensor measures a distance 
-		*			between the 0 and the given distance (see above from arguments); row[2] is for spot taken and row[3] for spot free,
-		*	5.		The read text of the license plate (this value is by default empty),
-		*	6.		The number of the license plate list item corresponding to a parking slot (this value is by default 0).
-		*/
-		parkingSlotArray.push([new PythonShell('sensor.py', pythonShellOptions),(i+1),false,false,"",0]);
+    /*	The parking slot array is two-dimensional; each row contains the following content:
+	*	1.		A python shell with options (see above),
+	*	2.		ID number of the sensor,
+	*	3./4.	Two boolean values, which are used as a toggle whenever the sensor measures a distance 
+	*			between the 0 and the given distance (see above from arguments); row[2] is for spot taken and row[3] for spot free,
+	*	5.		The read text of the license plate (this value is by default empty),
+	*	6.		The number of the license plate list item corresponding to a parking slot (this value is by default 0).
+	*	7.		The image of license plate
+	*/
+	let parkingSlot = { 'shell' : new PythonShell('sensor.py', pythonShellOptions),
+						'spotNumber' : numberOfSensor,
+						'spotTaken' : false,
+						'spotFree' : false,
+						'licensePlateText' : '',
+						'licensePlateListItemNumber' : numberOfSensor,
+						'licensePlateImage' : ''
+	};
 
-		// These two following values are for the python script for setting the GPIO IN and OUT, HIGH and LOW 
-		sensorTrigger += 6;
-		sensorEcho += 4;
-	}
 
-
-	startPythonScripts(parkingSlotArray,licensePlateListItemCounter);
-
-	setInterval(function() {
-	  console.log('Server still running');
-	  if((Date.now() -timeFromLastMessageFromSensor) >7500){
-	  	parkingSlotArray.forEach((row)=>{
-	  		row[0] = new PythonShell('sensor.py', pythonShellOptions);
-	  	});
-	  	licensePlateListItemCounter = amountOfSensors;
-	  	startPythonScripts(parkingSlotArray,licensePlateListItemCounter);
-	  }
-	}, 5000);
+	startPythonScript( parkingSlot );
 
 	nspBrowsers.on('connection', (socket) => {
-		
+
 		console.log('New browser socket is connected',socket.id);
 		console.log('Checking if browser has missed any parking action...');
 
-		let dataForBrowserUpdate = [];
-		parkingSlotArray.forEach((row)=>{
-				// see above for details to row
-				if(row[4] !== ""){
-					dataForBrowserUpdate.push([row[1],row[4],row[5]]);
-				}
-			});
-		socket.emit('updateSmartPark',dataForBrowserUpdate/*,latestLicensePlateImage*/);
-		
-		if(amountOfSensors < maxAmountOfSensors){
-			// simulationForDummySensors(maxAmountOfSensors - amountOfSensors,amountOfSensors,dummySleepingTime);
+		if(parkingSlot.licensePlateText !== ""){
+			socket.emit('updateSmartPark',
+						parkingSlot.spotNumber,
+						parkingSlot.licensePlateListItemNumber,
+						parkingSlot.licensePlateText,
+						parkingSlot.licensePlateImage);
 		}
 
 		socket.on('disconnect', () => {
 			console.log('Browser has been disconnected');
 		});
-
+		/*
+		if(amountOfSensors < maxAmountOfSensors){
+			simulationForDummySensors(maxAmountOfSensors - amountOfSensors,amountOfSensors,dummySleepingTime);
+		}
+		*/
 	});
-	
+
 	nspApps.on('connection', (socket) => {
-		
+
 		console.log('New app socket is connected',socket.id);
-		socket.on('image taken', (image,text,parkingSpotIdNumber,plateListIdNumberCache) => {
+
+		socket.on('image taken', (image,text,parkingSpotIdNumber,plateListIdNumber) => {
 			console.log('Image was taken from app from license plate of spot', parkingSpotIdNumber);
 
-			// This next condition is only true if car stays parked, because if it goes away,
-			// the license plate number (see above: row[5] = 0) is set back to 0 (the default value)
-			if(plateListIdNumberCache != undefined && plateListIdNumberCache == parkingSlotArray[parkingSpotIdNumber-1][5]){
-				nspBrowsers.emit('license plate received',text,parkingSpotIdNumber,plateListIdNumberCache);
-				nspBrowsers.emit('image received', image);
-				// Optional TODO: save each image either way
-				// latestLicensePlateImage = image;
-				parkingSlotArray[parkingSpotIdNumber-1][4] = text;
-				console.log('Still working here');
-			}else{
-				console.log('Car at spot',parkingSpotIdNumber,'with license plate',text,'just came and went');
+				// This next condition is only true if car stays parked, because if it goes away,
+				// the license plate number (see above: row[5] = 0) is set back to 0 (the default value)
+				if(plateListIdNumber != undefined){
+					nspBrowsers.emit('license plate received',text,parkingSpotIdNumber,plateListIdNumber);
+					nspBrowsers.emit('image received', image);
+					parkingSlot.licensePlateImage = image;
+					parkingSlot.licensePlateText = text;
+					console.log('App has sent image and text');
+				}else{
+					console.log('Car at spot',parkingSpotIdNumber,'with license plate',text,'just came and went.');
+				}
+			});
+
+		socket.on('no car detected', (parkingSpotIdNumber,plateListIdNumber) => {
+			console.log('No car at',parkingSpotIdNumber,'detected, trying again...');
+			if(parkingSlot.spotTaken){
+				nspApps.emit('take picture',parkingSpotIdNumber,plateListIdNumber);
 			}
 		});
-		
-		socket.on('no car detected', (parkingSpotIdNumber,plateListIdNumberCache) => {
-			console.log('No car at',parkingSpotIdNumber,'detected, trying again.');
-			if(parkingSlotArray[parkingSpotIdNumber-1][2]){
-				nspApps.emit('take picture',parkingSpotIdNumber,plateListIdNumberCache);
-			}
-		});
+
 		socket.on('disconnect', () => {
 			console.log('App has been disconnected');
 		});
 	});
-	
+
+   /*
+	setInterval(function() {
+		console.log('Server still running',timeFromLastMessageFromSensor);
+		  if((Date.now() -timeFromLastMessageFromSensor) >7500){ 
+		  	parkingSlotArray.forEach((row)=>{
+		  		row[0].end(function (err,code,signal) {});
+		  		row[0] = new PythonShell('sensor.py', pythonShellOptions);
+		  	});
+		  	licensePlateListItemCounter = amountOfSensors;
+		  	startPythonScript(parkingSlotArray,licensePlateListItemCounter);
+		  }
+		}, 5000);
+   */
+
 }else{
 	console.log('This is for debugging purposes outside of raspberry PI usage');
 }
 
 
-function startPythonScripts( parkingSlotArray,licensePlateListItemCounter ){
+function startPythonScript( parkingSlot ){
 
-	console.log('Starting python shell for',amountOfSensors,'sensor(s)');
+	console.log('Starting python shell for sensor', parkingSlot.spotNumber);
 
-	parkingSlotArray.forEach((row)=>{
-		row[0].on('stderr', function (stderr) {
-			console.log(stderr);
-		});
-		row[0].on('message', function(distance){
-
-			timeFromLastMessageFromSensor = Date.now();
-
-			console.log("Distance measure from sensor",row[1],":",distance);
-
-			if(distance <= measuringDistance){
-				if(!row[2]){
-					nspBrowsers.emit('spot taken',row[1]);
-					licensePlateListItemCounter ++;
-					nspApps.emit('take picture',row[1],licensePlateListItemCounter);
-					row[2] = true;
-					row[3] = false;
-					row[5] = licensePlateListItemCounter;
-				}
-			}else if(distance > measuringDistance){
-				if(!row[3]){
-					nspBrowsers.emit('spot free', row[1],row[5]);
-					licensePlateListItemCounter --;
-					row[2] = false;
-					row[3] = true;
-					row[4] = "";
-					row[5] = 0;
-
-				}
-			}
-			console.log('License plate counter', licensePlateListItemCounter);
-		});
+	parkingSlot.shell.on('stderr', function (stderr) {
+		console.log(stderr);
 	});
 
-	console.log('Python scripts are running for',amountOfSensors,'sensor(s)');
+	parkingSlot.shell.on('message', function(distance){
+
+			//timeFromLastMessageFromSensor = Date.now();
+
+			console.log("Distance measure from sensor",parkingSlot.spotNumber,":",distance);
+
+			if(distance <= measuringDistance){
+				if(!parkingSlot.spotTaken){
+					nspBrowsers.emit('spot taken',parkingSlot.spotNumber);
+					nspApps.emit('take picture',parkingSlot.spotNumber,parkingSlot.licensePlateListItemNumber);
+					parkingSlot.spotTaken = true;
+					parkingSlot.spotFree = false;
+				}
+			}else if(distance > measuringDistance){
+				if(!parkingSlot.spotFree){
+					nspBrowsers.emit('spot free',parkingSlot.spotNumber,parkingSlot.licensePlateListItemNumber);
+					parkingSlot.spotTaken = false;
+					parkingSlot.spotFree = true;
+					parkingSlot.licensePlateText = "";
+				}
+			}
+	});
 }
 
 function simulationForDummySensors(leftOverSensors, amountOfSensors, time){
