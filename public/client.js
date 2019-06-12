@@ -5,18 +5,18 @@ const socket = io('/browsers');
 
 console.log('Connection to Websocket at port', port);
 
-function addListItem( parkingSpotIdNumber, text, licensePlateListCounter ) {
+function addListItem( parkingSpotIdNumber, text, licensePlateListId ) {
 	console.log('Adding text for spot number',parkingSpotIdNumber,':',text)
-    $("#platelist").append( `<li id='plate${licensePlateListCounter}'>` + text + `</li>` );
-    $("#plate"+licensePlateListCounter).mouseenter( function(){
+    $("#platelist").append( `<li id='plate${licensePlateListId}'>` + text + `</li>` );
+    $("#plate"+licensePlateListId).mouseenter( function(){
         $('#parkingSlotGroup'+parkingSpotIdNumber).addClass('scaleOut');
     }).mouseleave( function(){
         $('#parkingSlotGroup'+parkingSpotIdNumber).removeClass('scaleOut');
     });
 };
  
-function removeListItem( licensePlateListCounter ) {
-    $("#plate" + licensePlateListCounter).detach();
+function removeListItem( licensePlateListId ) {
+    $("#plate" + licensePlateListId).detach();
 };
 
 function addImage( image ) {
@@ -30,11 +30,11 @@ function addCar( parkingSpotIdNumber ){
     $('#spot'+parkingSpotIdNumber).addClass("taken");
 }
 
-socket.on('updateSmartPark', ( parkingSpotIdNumber, licensePlateListCounter, licensePlateText, licensePlateImage) => {
+socket.on('updateSmartPark', ( parkingSpotIdNumber, licensePlateListId, licensePlateText, licensePlateImage) => {
     console.log('Searching for data for update...');
     console.log('Smart park being updated...');
     addImage( licensePlateImage );
-    addListItem( parkingSpotIdNumber, licensePlateText, licensePlateListCounter );
+    addListItem( parkingSpotIdNumber, licensePlateText, licensePlateListId );
     addCar( parkingSpotIdNumber );
 });
 
@@ -43,7 +43,7 @@ socket.on('spot taken', ( parkingSpotIdNumber ) =>{
     addCar( parkingSpotIdNumber );
 });
 
-socket.on('spot free', ( parkingSpotIdNumber, licensePlateListCounter ) =>{
+socket.on('spot free', ( parkingSpotIdNumber, licensePlateListId ) =>{
     console.log('Parking slot',parkingSpotIdNumber, 'is free again');
     $('#car'+parkingSpotIdNumber).addClass("free");
     $('#licenseplate').addClass("free");
@@ -51,12 +51,12 @@ socket.on('spot free', ( parkingSpotIdNumber, licensePlateListCounter ) =>{
     if($('#parkingSlotGroup'+parkingSpotIdNumber).hasClass('scaleOut')){
         $('#parkingSlotGroup'+parkingSpotIdNumber).removeClass('scaleOut');   
     }
-    removeListItem( licensePlateListCounter );
+    removeListItem( licensePlateListId );
 });
 
-socket.on('license plate received', ( text, parkingSpotIdNumber, licensePlateListCounter ) =>{
+socket.on('license plate received', ( text, parkingSpotIdNumber, licensePlateListId ) =>{
     console.log('Image has been taken by spot', parkingSpotIdNumber);
-    addListItem( parkingSpotIdNumber, text, licensePlateListCounter );
+    addListItem( parkingSpotIdNumber, text, licensePlateListId );
 });
 
 socket.on('image received', ( image ) =>{

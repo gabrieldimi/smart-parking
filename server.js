@@ -10,6 +10,8 @@ let server = require('http').Server(app);
 let io = require('socket.io')(server);
 let {PythonShell} = require('python-shell');
 
+let timeFromLastMessageFromSensor;
+
 // Namespaces for browser and app socket connections
 const nspBrowsers = io.of('/browsers');
 const nspApps = io.of('/apps');
@@ -46,9 +48,6 @@ app.get('/', (req,res) => {
 
 if(!noSernorsPluggedOn){
 
-	let timeFromLastMessageFromSensor = 0;
-	let connectionToAtleastOneBrowserEstablished = false;
-
 	// These two following values are for the python script for setting the GPIO IN and OUT, HIGH and LOW 
 	let sensorTrigger = 7;
 	let sensorEcho = 11;
@@ -61,20 +60,23 @@ if(!noSernorsPluggedOn){
 
     /*	The parking slot array is two-dimensional; each row contains the following content:
 	*	1.		A python shell with options (see above),
-	*	2.		ID number of the sensor,
-	*	3./4.	Two boolean values, which are used as a toggle whenever the sensor measures a distance 
-	*			between the 0 and the given distance (see above from arguments); row[2] is for spot taken and row[3] for spot free,
-	*	5.		The read text of the license plate (this value is by default empty),
-	*	6.		The number of the license plate list item corresponding to a parking slot (this value is by default 0).
-	*	7.		The image of license plate
+	*	2.		Python-shell's child process
+	*	3.		ID number of the sensor,
+	*	4./5.	Two boolean values, which are used as a toggle whenever the sensor measures a distance 
+	*			between the 0 and the given distance (see above from arguments);
+	*	6.		The read text of the license plate (this value is by default empty),
+	*	7.		The number of the license plate list item corresponding to a parking slot.
+	*	8.		The image of license plate
 	*/
-	let parkingSlot = { 'shell' : new PythonShell('sensor.py', pythonShellOptions),
-						'spotNumber' : numberOfSensor,
-						'spotTaken' : false,
-						'spotFree' : false,
-						'licensePlateText' : '',
-						'licensePlateListItemNumber' : numberOfSensor,
-						'licensePlateImage' : ''
+	let parkingSlot = { 
+		'shell' : new PythonShell('sensor.py', pythonShellOptions),
+		'shell_process' : '',
+		'spotNumber' : numberOfSensor,
+		'spotTaken' : false,
+		'spotFree' : false,
+		'licensePlateText' : '',
+		'licensePlateListItemNumber' : numberOfSensor,
+		'licensePlateImage' : ''
 	};
 
 
@@ -108,20 +110,19 @@ if(!noSernorsPluggedOn){
 		console.log('New app socket is connected',socket.id);
 
 		socket.on('image taken', (image,text,parkingSpotIdNumber,plateListIdNumber) => {
-			console.log('Image was taken from app from license plate of spot', parkingSpotIdNumber);
-
-				// This next condition is only true if car stays parked, because if it goes away,
+			// This next condition is only true if car stays parked.
+			if(plateListIdNumber != undefined && parkingSlot.spotTaken){
+				console.log('Image was taken from app from license plate',text,'of spot', parkingSpotIdNumber);
+				nspBrowsers.emit('license plate received',text,parkingSpotIdNumber,plateListIdNumber);
+				nspBrowsers.emit('image received', image);
+				parkingSlot.licensePlateImage = image;
+				parkingSlot.licensePlateText = text;
+				console.log('App has sent image and text');
+			}else{
 				// the license plate number (see above: row[5] = 0) is set back to 0 (the default value)
-				if(plateListIdNumber != undefined){
-					nspBrowsers.emit('license plate received',text,parkingSpotIdNumber,plateListIdNumber);
-					nspBrowsers.emit('image received', image);
-					parkingSlot.licensePlateImage = image;
-					parkingSlot.licensePlateText = text;
-					console.log('App has sent image and text');
-				}else{
-					console.log('Car at spot',parkingSpotIdNumber,'with license plate',text,'just came and went.');
-				}
-			});
+				console.log('Car at spot',parkingSpotIdNumber,'with license plate',text,'just came and went.');
+			}
+		});
 
 		socket.on('no car detected', (parkingSpotIdNumber,plateListIdNumber) => {
 			console.log('No car at',parkingSpotIdNumber,'detected, trying again...');
@@ -135,19 +136,17 @@ if(!noSernorsPluggedOn){
 		});
 	});
 
-   /*
+   
 	setInterval(function() {
-		console.log('Server still running',timeFromLastMessageFromSensor);
-		  if((Date.now() -timeFromLastMessageFromSensor) >7500){ 
-		  	parkingSlotArray.forEach((row)=>{
-		  		row[0].end(function (err,code,signal) {});
-		  		row[0] = new PythonShell('sensor.py', pythonShellOptions);
-		  	});
-		  	licensePlateListItemCounter = amountOfSensors;
-		  	startPythonScript(parkingSlotArray,licensePlateListItemCounter);
-		  }
-		}, 5000);
-   */
+		console.log('Server still running',(Date.now() - timeFromLastMessageFromSensor));
+		if((Date.now() - timeFromLastMessageFromSensor) >7500){ 
+			console.log('Restarting python script');
+			parkingSlot.shell_process.kill('SIGINT');
+			parkingSlot.shell = new PythonShell('sensor.py', pythonShellOptions);
+			startPythonScript( parkingSlot );
+		}
+	}, 5000);
+   
 
 }else{
 	console.log('This is for debugging purposes outside of raspberry PI usage');
@@ -159,12 +158,12 @@ function startPythonScript( parkingSlot ){
 	console.log('Starting python shell for sensor', parkingSlot.spotNumber);
 
 	parkingSlot.shell.on('stderr', function (stderr) {
-		console.log(stderr);
+		console.log('Stderr',stderr);
 	});
 
 	parkingSlot.shell.on('message', function(distance){
 
-			//timeFromLastMessageFromSensor = Date.now();
+			timeFromLastMessageFromSensor = Date.now();
 
 			console.log("Distance measure from sensor",parkingSlot.spotNumber,":",distance);
 
@@ -184,6 +183,15 @@ function startPythonScript( parkingSlot ){
 				}
 			}
 	});
+
+	parkingSlot.shell.end(function (err) {
+		console.log('Python shell ended.');
+		if(err){
+			console.log('Closing error',err);
+		}
+	});
+
+	parkingSlot.shell_process = parkingSlot.shell.childProcess;
 }
 
 function simulationForDummySensors(leftOverSensors, amountOfSensors, time){

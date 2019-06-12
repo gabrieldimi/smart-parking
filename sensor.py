@@ -7,7 +7,7 @@ def sensorInitialize(trigger_pin,echo_pin):
 	#Matching the pin to the GPIO slots
 	GPIO.setup(trigger_pin, GPIO.OUT)
 	GPIO.setup(echo_pin, GPIO.IN)
-	#GPIO.setwarnings(False)
+	GPIO.setwarnings(False)
 
 def sensorMeasuring(trigger_pin,echo_pin,time_to_sleep):
 	GPIO.output(trigger_pin, GPIO.LOW)
