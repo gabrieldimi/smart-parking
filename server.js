@@ -141,7 +141,9 @@ if(!noSernorsPluggedOn){
 		console.log('Server still running',(Date.now() - timeFromLastMessageFromSensor));
 		if((Date.now() - timeFromLastMessageFromSensor) >7500){ 
 			console.log('Restarting python script');
-			parkingSlot.shell_process.kill('SIGINT');
+			parkingSlot.shell_process.stdin.pause();
+			parkingSlot.shell_process.stdout.pause();
+			parkingSlot.shell_process.kill();
 			parkingSlot.shell = new PythonShell('sensor.py', pythonShellOptions);
 			startPythonScript( parkingSlot );
 		}
@@ -184,10 +186,12 @@ function startPythonScript( parkingSlot ){
 			}
 	});
 
-	parkingSlot.shell.end(function (err) {
+	parkingSlot.shell.end(function (err,code,signal) {
 		console.log('Python shell ended.');
+		console.log('The exit code was: ' + code);
+		console.log('The exit signal was: ' + signal);
 		if(err){
-			console.log('Closing error',err);
+			console.log('Closing...',err);
 		}
 	});
 
