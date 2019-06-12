@@ -17,17 +17,21 @@ const nspBrowsers = io.of('/browsers');
 const nspApps = io.of('/apps');
 
 // Passed arguments
-let numberOfSensor = args.number_of_sensor;
-let sensorSleepingtime = args.time_to_sleep;
 let measuringDistance = args.distance;
-let maxAmountOfSensors = args.max_amount_of_sensors;
-let dummySleepingTime = args.time_to_sleep_for_dummies;
+let sensorSleepingtime = args.time_to_sleep;
+let idNumberOfSensor = args.id_number_of_sensor;
+
+// These two following values are for the python script for setting the GPIO IN and OUT, HIGH and LOW 
+let sensorTrigger = args.sensor_trigger;
+let sensorEcho = args.sensor_echo;
+
 let noSernorsPluggedOn = args.no_sensors_plugged_on;
 
+let licensePlatePattern = args.license_plate_pattern;
+
 console.log("Distance:",measuringDistance,"cm");
-console.log("Number of sensor:",numberOfSensor);
+console.log("Id number of sensor:",idNumberOfSensor);
 console.log("Sleeping time between readings of sensor:",sensorSleepingtime,"sec(s)");
-console.log("Sleeping time between readings of dummies:",dummySleepingTime,"sec(s)");
 
 // Using pug engine for viewing html
 // app.set('view engine', 'pug');
@@ -48,17 +52,13 @@ app.get('/', (req,res) => {
 
 if(!noSernorsPluggedOn){
 
-	// These two following values are for the python script for setting the GPIO IN and OUT, HIGH and LOW 
-	let sensorTrigger = 7;
-	let sensorEcho = 11;
-
 	let pythonShellOptions = {
 		mode: 'text',
-		pythonOptions: ['-u'],
+		pythonOptions: ['-u'], // get print results in real-time
 		args: [sensorTrigger,sensorEcho,Number(sensorSleepingtime),]
 	};
 
-    /*	The parking slot array is two-dimensional; each row contains the following content:
+    /*	The parking slot is a JSON-object, containing the following key-value pairs:
 	*	1.		A python shell with options (see above),
 	*	2.		Python-shell's child process
 	*	3.		ID number of the sensor,
@@ -71,11 +71,11 @@ if(!noSernorsPluggedOn){
 	let parkingSlot = { 
 		'shell' : new PythonShell('sensor.py', pythonShellOptions),
 		'shell_process' : '',
-		'spotNumber' : numberOfSensor,
+		'spotNumber' : idNumberOfSensor,
 		'spotTaken' : false,
 		'spotFree' : false,
 		'licensePlateText' : '',
-		'licensePlateListItemNumber' : numberOfSensor,
+		'licensePlateListItemNumber' : idNumberOfSensor,
 		'licensePlateImage' : ''
 	};
 
@@ -98,11 +98,6 @@ if(!noSernorsPluggedOn){
 		socket.on('disconnect', () => {
 			console.log('Browser has been disconnected');
 		});
-		/*
-		if(amountOfSensors < maxAmountOfSensors){
-			simulationForDummySensors(maxAmountOfSensors - amountOfSensors,amountOfSensors,dummySleepingTime);
-		}
-		*/
 	});
 
 	nspApps.on('connection', (socket) => {
@@ -112,12 +107,17 @@ if(!noSernorsPluggedOn){
 		socket.on('image taken', (image,text,parkingSpotIdNumber,plateListIdNumber) => {
 			// This next condition is only true if car stays parked.
 			if(plateListIdNumber != undefined && parkingSlot.spotTaken){
-				console.log('Image was taken from app from license plate',text,'of spot', parkingSpotIdNumber);
-				nspBrowsers.emit('license plate received',text,parkingSpotIdNumber,plateListIdNumber);
-				nspBrowsers.emit('image received', image);
-				parkingSlot.licensePlateImage = image;
-				parkingSlot.licensePlateText = text;
-				console.log('App has sent image and text');
+				if(text.match(licensePlatePattern)){
+					console.log('Image was taken from app from license plate',text,'of spot', parkingSpotIdNumber);
+					nspBrowsers.emit('license plate received',text,parkingSpotIdNumber,plateListIdNumber);
+					nspBrowsers.emit('image received', image);
+					parkingSlot.licensePlateImage = image;
+					parkingSlot.licensePlateText = text;
+					console.log('App has sent image and text');
+				}else{
+					console.log('Text from image', text,'does not match with the pattern. Trying again...');
+					nspApps.emit('take picture',parkingSpotIdNumber,plateListIdNumber);
+				}
 			}else{
 				// the license plate number (see above: row[5] = 0) is set back to 0 (the default value)
 				console.log('Car at spot',parkingSpotIdNumber,'with license plate',text,'just came and went.');
@@ -139,12 +139,14 @@ if(!noSernorsPluggedOn){
    
 	setInterval(function() {
 		console.log('Server still running',(Date.now() - timeFromLastMessageFromSensor));
-		if((Date.now() - timeFromLastMessageFromSensor) >7500){ 
+		if((Date.now() - timeFromLastMessageFromSensor) >5500){ 
 			console.log('Restarting python script');
 			parkingSlot.shell_process.stdin.pause();
 			parkingSlot.shell_process.stdout.pause();
 			parkingSlot.shell_process.kill();
 			parkingSlot.shell = new PythonShell('sensor.py', pythonShellOptions);
+			parkingSlot.spotTaken = false;
+			parkingSlot.spotFree = false;
 			startPythonScript( parkingSlot );
 		}
 	}, 5000);
@@ -196,15 +198,4 @@ function startPythonScript( parkingSlot ){
 	});
 
 	parkingSlot.shell_process = parkingSlot.shell.childProcess;
-}
-
-function simulationForDummySensors(leftOverSensors, amountOfSensors, time){
-
-	setInterval(()=>{
-		let rand1 = Math.floor(Math.random() *leftOverSensors) + amountOfSensors + 1;
-		let rand2 = Math.floor(Math.random() *leftOverSensors) + amountOfSensors + 1;
-		console.log('rand1:',rand1," rand2: ",rand2);
-		nspBrowsers.emit('spot taken', rand1);
-		nspBrowsers.emit('spot free', rand2);
-	},time);
 }
