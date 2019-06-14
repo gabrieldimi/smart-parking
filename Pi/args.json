@@ -1,0 +1,9 @@
+{
+	"arguments" : {
+		"distance" : 20.0,
+		"time_to_sleep" : 1.0,
+		"id_number_of_sensor" : 1,
+		"sensor_trigger" : 7,
+		"sensor_echo" : 11
+	}
+}
