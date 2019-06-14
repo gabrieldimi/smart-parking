@@ -1,6 +1,6 @@
 let {PythonShell} = require('python-shell');
 let mqtt = require('mqtt');
-let raspberryPiClient  = mqtt.connect('10.42.0.211');
+let raspberryPiClient  = mqtt.connect('mqtt://10.42.0.211');
 
 // Passed arguments
 const args = require('./args.json').arguments;
@@ -49,7 +49,7 @@ raspberryPiClient.on('connect', function(connack){
 });
 
 
-function sfailFast( milliseconds ){
+function failFast( milliseconds ){
 
 	setInterval(function() {
 		console.log('Server still running',(Date.now() - timeFromLastMessageFromSensor));
