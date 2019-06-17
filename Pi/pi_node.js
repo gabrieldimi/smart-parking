@@ -83,13 +83,21 @@ function startPythonScript( parkingSlot ){
 
 		if(distance <= measuringDistance){
 			if(!parkingSlot.spotTaken){
+<<<<<<< HEAD
 				raspberryPiClient.publish('parking-spot/car-is-here',JSON.stringify({ 'spot' : parkingSlot.spotNumber,'spot_status': true });
+=======
+				raspberryPiClient.publish(`parking-slot/spot${parkingSlot.spotNumber}/carIsHere`,"true");
+>>>>>>> d27377000cf2b7f474a91896243cb3c2da572e25
 				parkingSlot.spotTaken = true;
 				parkingSlot.spotFree = false;
 			}
 		}else if(distance > measuringDistance){
 			if(!parkingSlot.spotFree){
+<<<<<<< HEAD
 				raspberryPiClient.publish('parking-spot/car-is-here',JSON.stringify({ 'spot' : parkingSlot.spotNumber,'spot_status': false });
+=======
+				raspberryPiClient.publish(`parking-slot/spot${parkingSlot.spotNumber}/carIsHere`,"false");
+>>>>>>> d27377000cf2b7f474a91896243cb3c2da572e25
 				parkingSlot.spotTaken = false;
 				parkingSlot.spotFree = true;
 			}
