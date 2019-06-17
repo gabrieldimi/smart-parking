@@ -1,14 +1,13 @@
 let host = window.location.hostname;
-console.log('Window location',window.location,'on host',host);
 let port = window.location.port;
-const socket = io('/browsers');
+console.log('Connection to Websocket at port', port, 'on host', host);
 
-console.log('Connection to Websocket at port', port);
+let browserClient = mqtt.connect('mqtt://10.0.0.3');
 
-function addListItem( parkingSpotIdNumber, text, licensePlateListId ) {
+function addListItem( parkingSpotIdNumber, text ) {
 	console.log('Adding text for spot number',parkingSpotIdNumber,':',text)
-    $("#platelist").append( `<li id='plate${licensePlateListId}'>` + text + `</li>` );
-    $("#plate"+licensePlateListId).mouseenter( function(){
+    $("#platelist").append( `<li id='plate${parkingSpotIdNumber}'>` + text + `</li>` );
+    $("#plate"+parkingSpotIdNumber).mouseenter( function(){
         $('#parkingSlotGroup'+parkingSpotIdNumber).addClass('scaleOut');
     }).mouseleave( function(){
         $('#parkingSlotGroup'+parkingSpotIdNumber).removeClass('scaleOut');
@@ -30,20 +29,7 @@ function addCar( parkingSpotIdNumber ){
     $('#spot'+parkingSpotIdNumber).addClass("taken");
 }
 
-socket.on('updateSmartPark', ( parkingSpotIdNumber, licensePlateListId, licensePlateText, licensePlateImage) => {
-    console.log('Searching for data for update...');
-    console.log('Smart park being updated...');
-    addImage( licensePlateImage );
-    addListItem( parkingSpotIdNumber, licensePlateText, licensePlateListId );
-    addCar( parkingSpotIdNumber );
-});
-
-socket.on('spot taken', ( parkingSpotIdNumber ) =>{
-    console.log('Parking slot',parkingSpotIdNumber, 'has been taken');
-    addCar( parkingSpotIdNumber );
-});
-
-socket.on('spot free', ( parkingSpotIdNumber, licensePlateListId ) =>{
+function removeCar( parkingSpotIdNumber ){
     console.log('Parking slot',parkingSpotIdNumber, 'is free again');
     $('#car'+parkingSpotIdNumber).addClass("free");
     $('#licenseplate').addClass("free");
@@ -51,19 +37,43 @@ socket.on('spot free', ( parkingSpotIdNumber, licensePlateListId ) =>{
     if($('#parkingSlotGroup'+parkingSpotIdNumber).hasClass('scaleOut')){
         $('#parkingSlotGroup'+parkingSpotIdNumber).removeClass('scaleOut');   
     }
-    removeListItem( licensePlateListId );
+    removeListItem( parkingSpotIdNumber );
+}
+
+function handleCarIsHere(message){
+    let jsonMsg = JSON.parse(message.toString());
+    if(jsonMsg.spot_status){
+        addCar(jsonMsg.spot);
+    }else{
+        removeCar(jsonMsg.spot);
+    }
+}
+
+function handleLicensePlate(message){
+    let jsonMsg = JSON.parse(message.toString());
+    console.log('Image has been taken by camera at spot', jsonMsg.spot);
+    addListItem( jsonMsg.spot, jsonMsg.text );
+    addImage( jsonMsg.image );
+}
+
+browserClient.on('connect', function(connack){
+    console.log('Connection status',connack);
+    for (var spotIndex = 1; spotIndex <= 10; spotIndex ++) {
+        browserClient.subscribe('parking-slot/spot${spotIndex}/carIsHere');
+    }
 });
 
-socket.on('license plate received', ( text, parkingSpotIdNumber, licensePlateListId ) =>{
-    console.log('Image has been taken by spot', parkingSpotIdNumber);
-    addListItem( parkingSpotIdNumber, text, licensePlateListId );
+browserClient.on('message', (topic, message) => {
+    switch (topic) {
+        case 'parking-spot/car-is-here':
+            return handleCarIsHere(message);
+        case 'parking-spot/license-plate':
+            return handleLicensePlate(message);
+    }
+    console.log('No handler for topic %s', topic)
 });
 
-socket.on('image received', ( image ) =>{
-    addImage( image );
-});
-
-socket.on('disconnect', () => {
-    console.log('Server has been disconnected.');
-    socket.disconnect();
+browserClient.on('disconnect', (packet) => {
+    console.log('Disconnect received from broker', packet);
+    browserClient.end();
 });

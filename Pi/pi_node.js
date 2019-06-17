@@ -1,6 +1,6 @@
 let {PythonShell} = require('python-shell');
 let mqtt = require('mqtt');
-let raspberryPiClient  = mqtt.connect('10.42.0.211');
+let raspberryPiClient  = mqtt.connect('mqtt://10.0.0.3');
 
 // Passed arguments
 const args = require('./args.json').arguments;
@@ -49,7 +49,7 @@ raspberryPiClient.on('connect', function(connack){
 });
 
 
-function sfailFast( milliseconds ){
+function failFast( milliseconds ){
 
 	setInterval(function() {
 		console.log('Server still running',(Date.now() - timeFromLastMessageFromSensor));
@@ -83,13 +83,13 @@ function startPythonScript( parkingSlot ){
 
 		if(distance <= measuringDistance){
 			if(!parkingSlot.spotTaken){
-				raspberryPiClient.publish(`parking-slot/spot${parkingSlot.spotNumber}/carIsHere`,true);
+				raspberryPiClient.publish('parking-spot/car-is-here',JSON.stringify({ 'spot' : parkingSlot.spotNumber,'spot_status': true });
 				parkingSlot.spotTaken = true;
 				parkingSlot.spotFree = false;
 			}
 		}else if(distance > measuringDistance){
 			if(!parkingSlot.spotFree){
-				raspberryPiClient.publish(`parking-slot/spot${parkingSlot.spotNumber}/carIsHere`,false);
+				raspberryPiClient.publish('parking-spot/car-is-here',JSON.stringify({ 'spot' : parkingSlot.spotNumber,'spot_status': false });
 				parkingSlot.spotTaken = false;
 				parkingSlot.spotFree = true;
 			}
