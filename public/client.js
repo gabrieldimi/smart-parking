@@ -2,7 +2,7 @@ let host = window.location.hostname;
 let port = window.location.port;
 console.log('Connection to Websocket at port', port, 'on host', host);
 
-let browserClient = mqtt.connect('mqtt://10.0.0.3');
+let mqttBrowserClient = mqtt.connect('mqtt://10.0.0.3:9001');
 
 function addListItem( parkingSpotIdNumber, text ) {
 	console.log('Adding text for spot number',parkingSpotIdNumber,':',text)
@@ -25,12 +25,13 @@ function addImage( image ) {
 };
 
 function addCar( parkingSpotIdNumber ){
+	console.log('Parking spot',parkingSpotIdNumber, 'is taken');
     $('#car'+parkingSpotIdNumber).removeClass("free");
     $('#spot'+parkingSpotIdNumber).addClass("taken");
 }
 
 function removeCar( parkingSpotIdNumber ){
-    console.log('Parking slot',parkingSpotIdNumber, 'is free again');
+    console.log('Parking spot',parkingSpotIdNumber, 'is free again');
     $('#car'+parkingSpotIdNumber).addClass("free");
     $('#licenseplate').addClass("free");
     $('#spot'+parkingSpotIdNumber).removeClass("taken");
@@ -49,31 +50,29 @@ function handleCarIsHere(message){
     }
 }
 
-function handleLicensePlate(message){
+function handleImageIsTaken(message){
     let jsonMsg = JSON.parse(message.toString());
     console.log('Image has been taken by camera at spot', jsonMsg.spot);
     addListItem( jsonMsg.spot, jsonMsg.text );
     addImage( jsonMsg.image );
 }
 
-browserClient.on('connect', function(connack){
+mqttBrowserClient.on('connect', function(connack){
     console.log('Connection status',connack);
-    for (var spotIndex = 1; spotIndex <= 10; spotIndex ++) {
-        browserClient.subscribe('parking-slot/spot${spotIndex}/carIsHere');
-    }
+    mqttBrowserClient.subscribe(`parking-spot/car-is-here`);
 });
 
-browserClient.on('message', (topic, message) => {
+mqttBrowserClient.on('message', (topic, message) => {
     switch (topic) {
         case 'parking-spot/car-is-here':
             return handleCarIsHere(message);
-        case 'parking-spot/license-plate':
-            return handleLicensePlate(message);
+        case 'parking-spot/image-is-taken':
+            return handleImageIsTaken(message);
     }
     console.log('No handler for topic %s', topic)
 });
 
-browserClient.on('disconnect', (packet) => {
+mqttBrowserClient.on('disconnect', (packet) => {
     console.log('Disconnect received from broker', packet);
-    browserClient.end();
+    mqttBrowserClient.end();
 });

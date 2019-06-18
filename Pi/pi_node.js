@@ -83,13 +83,13 @@ function startPythonScript( parkingSlot ){
 
 		if(distance <= measuringDistance){
 			if(!parkingSlot.spotTaken){
-				raspberryPiClient.publish('parking-spot/car-is-here',JSON.stringify({ 'spot' : parkingSlot.spotNumber,'spot_status': true });
+				raspberryPiClient.publish('parking-spot/car-is-here',JSON.stringify({ 'spot' : parkingSlot.spotNumber,'spot_status': true }));
 				parkingSlot.spotTaken = true;
 				parkingSlot.spotFree = false;
 			}
 		}else if(distance > measuringDistance){
 			if(!parkingSlot.spotFree){
-				raspberryPiClient.publish('parking-spot/car-is-here',JSON.stringify({ 'spot' : parkingSlot.spotNumber,'spot_status': false });
+				raspberryPiClient.publish('parking-spot/car-is-here',JSON.stringify({ 'spot' : parkingSlot.spotNumber,'spot_status': false }));
 				parkingSlot.spotTaken = false;
 				parkingSlot.spotFree = true;
 			}
