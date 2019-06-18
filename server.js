@@ -28,6 +28,6 @@ app.get('/', (req,res) => {
 
 mqttServerClient.on('connect', function(connack){
     console.log('Connection status to mqtt broker',connack);
-    mqttServerClient.publish('parking-spot/who-am-i',appCounter);
+    mqttServerClient.publish('parking-spot/who-am-i',appCounter+'');
     appCounter ++;
 });

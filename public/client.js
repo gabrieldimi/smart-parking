@@ -57,9 +57,22 @@ function handleImageIsTaken(message){
     addImage( jsonMsg.image );
 }
 
+function handleNothingIsDetected(message){
+    let jsonMsg = JSON.parse(message.toString());
+    console.log('No license plate detected by camera at spot', jsonMsg.spot);
+	if( !($('#car'+jsonMsg.spot).hasClass("free")) ){
+		console.log('Checking again');
+		mqttBrowserClient.publish('parking-spot/car-is-here',JSON.stringify({ 'spot' : jsonMsg.spot,'spot_status': true }));
+	}else{
+		console.log('Car at spot', jsonMsg.spot, 'is gone already');
+	}
+}
+
 mqttBrowserClient.on('connect', function(connack){
     console.log('Connection status',connack);
-    mqttBrowserClient.subscribe(`parking-spot/car-is-here`);
+    mqttBrowserClient.subscribe('parking-spot/car-is-here');
+    mqttBrowserClient.subscribe('parking-spot/image-is-taken');
+    mqttBrowserClient.subscribe('parking-spot/nothing-is-detected');
 });
 
 mqttBrowserClient.on('message', (topic, message) => {
@@ -68,6 +81,8 @@ mqttBrowserClient.on('message', (topic, message) => {
             return handleCarIsHere(message);
         case 'parking-spot/image-is-taken':
             return handleImageIsTaken(message);
+        case 'parking-spot/nothing-is-detected':
+            return handleNothingIsDetected(message);
     }
     console.log('No handler for topic %s', topic)
 });
