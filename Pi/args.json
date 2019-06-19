@@ -1,5 +1,6 @@
 {
 	"arguments" : {
+		"mqtt_uri" : "mqtt://10.0.0.3",
 		"distance" : 20.0,
 		"time_to_sleep" : 1.0,
 		"id_number_of_sensor" : 1,

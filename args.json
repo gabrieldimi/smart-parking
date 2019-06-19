@@ -1,12 +1,10 @@
 {
 	"arguments" : {
-		"distance" : 20.0,
-		"time_to_sleep" : 1.0,
 		"port" : "9999",
-		"id_number_of_sensor" : 1,
-		"sensor_trigger" : 7,
-		"sensor_echo" : 11,
-		"no_sensors_plugged_on" : false,
+		"mqtt_uri" : "mqtt://10.0.0.3",
+		"mongodb_uri" : "mongodb://10.0.0.3:27017",
+		"mongodb_database" : "parkers",
+		"mongodb_collection" : "data",
 		"license_plate_pattern" : "^[A-Za-z]{1,3}[A-Za-z]{1,2}[0-9]{1,4}$"
 	}
 }

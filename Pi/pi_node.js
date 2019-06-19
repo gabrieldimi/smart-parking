@@ -1,9 +1,9 @@
-let {PythonShell} = require('python-shell');
-let mqtt = require('mqtt');
-let raspberryPiClient  = mqtt.connect('mqtt://10.0.0.3');
-
 // Passed arguments
 const args = require('./args.json').arguments;
+
+let {PythonShell} = require('python-shell');
+let mqtt = require('mqtt');
+let raspberryPiClient  = mqtt.connect(args.mqtt_uri);
 
 let measuringDistance = args.distance;
 let sensorSleepingtime = args.time_to_sleep;
