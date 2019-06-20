@@ -1,9 +1,9 @@
 {
-  "name": "simple-node-website",
-  "version": "0.1.0",
-  "description": "A simple website built with Node, Express and Pug",
+  "name": "Smart-Parking-System",
+  "version": "0.1.1",
+  "description": "",
   "main": "server.js",
-  "author": "Ayo Isaiah",
+  "author": "Gabriel Dimitrov",
   "license": "MIT",
   "dependencies": {
     "express": "^4.16.4",

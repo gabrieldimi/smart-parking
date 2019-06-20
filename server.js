@@ -14,47 +14,51 @@ let mqttServerClient = mqtt.connect(args.mqtt_uri);
 
 let mongoServerClient;
 
-mongodb.MongoClient.connect(args.mongodb_uri,{ useNewUrlParser: true }, (error, client) => {
-	if(error){
-		throw error;
-	}
-	console.log('Connection to mongodb established');
+let connectToMongoWithRetry = function() {
 
-	mongoServerClient = client;
+	mongodb.MongoClient.connect(args.mongodb_uri,{ useNewUrlParser: true }, (error, client) => {
+		if(error){
+			console.error('Failed to connect to mongo on startup - retrying in 5 sec', error);
+			setTimeout(connectToMongoWithRetry,5000);
+		}
+		console.log('Connection to mongodb established');
 
-	const dataBaseObj = client.db(args.mongodb_database);
+		mongoServerClient = client;
 
-	let collectionObj = dataBaseObj.collection(args.mongodb_collection);
-	collectionObj.createIndex( {"parker": 1});
+		const dataBaseObj = client.db(args.mongodb_database);
 
-	mqttServerClient.on('message',(topic, message) => {
+		let collectionObj = dataBaseObj.collection(args.mongodb_collection);
+		collectionObj.createIndex( {"parker": 1});
 
-	 	if (topic == 'parking-spot/image-is-taken') {
+		mqttServerClient.on('message',(topic, message) => {
 
-	    	let jsonMsg = JSON.parse(message.toString());
-	    	let dateObj = new Date();
-	    	let date = dateObj.getFullYear()+'-'+(dateObj.getMonth()+1)+'-'+dateObj.getDate();
-	    	let time = dateObj.getHours() + ":" + dateObj.getMinutes() + ":" + dateObj.getSeconds();
-		
-	       	let messageObject = {
+		 	if (topic == 'parking-spot/image-is-taken') {
 
-	       		"spot" : jsonMsg.spot,
-	       		"text" : jsonMsg.text,
-	       		"image" : jsonMsg.image,
-	       		"time_stamp" : date+' '+time
-	       	}
+		    	let jsonMsg = JSON.parse(message.toString());
+		    	let dateObj = new Date();
+		    	let date = dateObj.getFullYear()+'-'+(dateObj.getMonth()+1)+'-'+dateObj.getDate();
+		    	let time = dateObj.getHours() + ":" + dateObj.getMinutes() + ":" + dateObj.getSeconds();
+			
+		       	let messageObject = {
 
-	       	collectionObj.insertOne(messageObject, (error,resultObj) =>{
-	       		if(error){
-	       			console.log("Error", error);
-	       		}else{
-	       			console.log("Result",resultObj.result);
-	       		}
-	       	});
-	    }
+		       		"spot" : jsonMsg.spot,
+		       		"text" : jsonMsg.text,
+		       		"image" : jsonMsg.image,
+		       		"time_stamp" : date+' '+time
+		       	}
+
+		       	collectionObj.insertOne(messageObject, (error,resultObj) =>{
+		       		if(error){
+		       			console.log("Error", error);
+		       		}else{
+		       			console.log("Result",resultObj.result);
+		       		}
+		       	});
+		    }
+		});
 	});
-});
-
+}
+connectToMongoWithRetry();
 
 // Using pug engine for viewing html
 // app.set('view engine', 'pug');
