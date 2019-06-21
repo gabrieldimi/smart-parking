@@ -52,7 +52,7 @@ def on_message(client, userdata, message):
 			blink_thread.alpr_recognition_done = True
 
 def on_connect(client, userdata, flags, rc):
-	print("connected")
+	print("Connected to broker")
 	client.subscribe(image_is_taken)
 	client.subscribe(car_is_here)
 
@@ -119,8 +119,9 @@ if __name__ == '__main__':
 			client.on_connect = on_connect
 			client.on_message = on_message
 			client.connect(BROKER_ADDRESS)
-			print("Connected to MQTT broker: ",BROKER_ADDRESS)
+			print("Connecting to MQTT broker: ",BROKER_ADDRESS)
 			client.loop_start()
+			time.sleep(4)
 
 			trigger_pin = args['sensor_trigger']
 			echo_pin = args['sensor_echo']
