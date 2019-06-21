@@ -1,10 +1,17 @@
 {
 	"arguments" : {
-		"mqtt_uri" : "mqtt://10.0.0.3",
-		"distance" : 20.0,
+		"mqtt_ip" : "10.0.0.3",
+		"publish_topic": "parking-spot/car-is-here",
+		"subscribe_topic": "parking-spot/image-is-taken",
+		"desired_distance" : 20.0,
 		"time_to_sleep" : 1.0,
 		"id_number_of_sensor" : 1,
 		"sensor_trigger" : 7,
-		"sensor_echo" : 11
+		"sensor_echo" : 11,
+		"red_pin" : 35,
+		"green_pin" : 36,
+		"yellow_pin" : 37,
+		"blue_pin" : 38,
+		"blink_speed" : 0.1
 	}
 }

@@ -53,8 +53,12 @@ function handleCarIsHere(message){
 function handleImageIsTaken(message){
     let jsonMsg = JSON.parse(message.toString());
     console.log('Image has been taken by camera at spot', jsonMsg.spot);
-    addListItem( jsonMsg.spot, jsonMsg.text );
-    addImage( jsonMsg.image );
+    if( !($('#car'+jsonMsg.spot).hasClass("free")) ){
+        addListItem( jsonMsg.spot, jsonMsg.text );
+        addImage( jsonMsg.image );
+    }else{
+        console.log('Car at spot', jsonMsg.spot, 'went already after license plate recognition.');
+    }
 }
 
 function handleNothingIsDetected(message){
