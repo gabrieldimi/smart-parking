@@ -109,7 +109,7 @@ def sensorMeasuring():
 			spot_free = True
 			spot_taken = False
 	
-	#print(measured_distance)
+	print(measured_distance)
 
 if __name__ == '__main__':
 	try:
@@ -147,20 +147,23 @@ if __name__ == '__main__':
 
 			pinsInitialization()
 			while True:
-				print('Running...')
-				time.sleep(0.1)
+				time.sleep(0.01)
 				sensorMeasuring()
 
-			blink_thread.thread_working = False
-			blink_thread.join()
 		finally:
 			GPIO.cleanup()
+			blink_thread.thread_working = False
+			blink_thread.join()
+
 	except (Exception, KeyboardInterrupt) as ex:
 		template = "An exception of type {0} occurred. Arguments:\n{1!r}"
 		message = template.format(type(ex).__name__, ex.args)
 		sys.stderr.write(message)
 		try:
 			print("Trying to exit with sys.exit(0)")
+			blink_thread.thread_working = False
+			blink_thread.join()
+			GPIO.cleanup()
 			sys.exit(0)
 		except SystemExit:
 			print("Sys.exit(0) did not work, trying to exit with os.exit(0)")

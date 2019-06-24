@@ -34,9 +34,10 @@ function startPythonScript(){
 		console.log('Stderr',stderr);
 	});
 
-	shell.on('message', function(status){
+	shell.on('message', function(distance){
 
 		timeFromLastMessageFromSensor = Date.now();
+		console.log('Distance measured as', distance)
 	});
 
 	shell.end(function (err,code,signal) {
