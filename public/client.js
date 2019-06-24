@@ -5,17 +5,21 @@ console.log('Connection to Websocket at port', port, 'on host', host);
 let mqttBrowserClient = mqtt.connect('mqtt://10.0.0.3:9001');
 
 function addListItem( parkingSpotIdNumber, text ) {
-	console.log('Adding text for spot number',parkingSpotIdNumber,':',text)
-    $("#platelist").append( `<li id='plate${parkingSpotIdNumber}'>` + text + `</li>` );
-    $("#plate"+parkingSpotIdNumber).mouseenter( function(){
-        $('#parkingSlotGroup'+parkingSpotIdNumber).addClass('scaleOut');
-    }).mouseleave( function(){
-        $('#parkingSlotGroup'+parkingSpotIdNumber).removeClass('scaleOut');
-    });
+	console.log('Adding plate with id',parkingSpotIdNumber,'and text',text)
+
+    if( !($('#plate'+parkingSpotIdNumber).length) ){
+
+        $('#platelist').append( `<li id='plate${parkingSpotIdNumber}'>` + text + `</li>` );
+        $('#plate'+parkingSpotIdNumber).mouseenter( function(){
+            $('#parkingSlotGroup'+parkingSpotIdNumber).addClass('scaleOut');
+        }).mouseleave( function(){
+            $('#parkingSlotGroup'+parkingSpotIdNumber).removeClass('scaleOut');
+        });
+    }
 };
  
 function removeListItem( licensePlateListId ) {
-    $("#plate" + licensePlateListId).detach();
+    $('#plate' + licensePlateListId).detach();
 };
 
 function addImage( image ) {
@@ -26,15 +30,15 @@ function addImage( image ) {
 
 function addCar( parkingSpotIdNumber ){
 	console.log('Parking spot',parkingSpotIdNumber, 'is taken');
-    $('#car'+parkingSpotIdNumber).removeClass("free");
-    $('#spot'+parkingSpotIdNumber).addClass("taken");
+    $('#car'+parkingSpotIdNumber).removeClass('free');
+    $('#spot'+parkingSpotIdNumber).addClass('taken');
 }
 
 function removeCar( parkingSpotIdNumber ){
     console.log('Parking spot',parkingSpotIdNumber, 'is free again');
-    $('#car'+parkingSpotIdNumber).addClass("free");
-    $('#licenseplate').addClass("free");
-    $('#spot'+parkingSpotIdNumber).removeClass("taken");
+    $('#car'+parkingSpotIdNumber).addClass('free');
+    $('#licenseplate').addClass('free');
+    $('#spot'+parkingSpotIdNumber).removeClass('taken');
     if($('#parkingSlotGroup'+parkingSpotIdNumber).hasClass('scaleOut')){
         $('#parkingSlotGroup'+parkingSpotIdNumber).removeClass('scaleOut');   
     }
@@ -53,7 +57,7 @@ function handleCarIsHere(message){
 function handleImageIsTaken(message){
     let jsonMsg = JSON.parse(message.toString());
     console.log('Image has been taken by camera at spot', jsonMsg.spot);
-    if( !($('#car'+jsonMsg.spot).hasClass("free")) ){
+    if( !($('#car'+jsonMsg.spot).hasClass('free')) ){
         addListItem( jsonMsg.spot, jsonMsg.text );
         addImage( jsonMsg.image );
     }else{
@@ -61,22 +65,10 @@ function handleImageIsTaken(message){
     }
 }
 
-function handleNothingIsDetected(message){
-    let jsonMsg = JSON.parse(message.toString());
-    console.log('No license plate detected by camera at spot', jsonMsg.spot);
-	if( !($('#car'+jsonMsg.spot).hasClass("free")) ){
-		console.log('Checking again');
-		mqttBrowserClient.publish('parking-spot/car-is-here',JSON.stringify({ 'spot' : jsonMsg.spot,'spot_status': true }));
-	}else{
-		console.log('Car at spot', jsonMsg.spot, 'is gone already');
-	}
-}
-
 mqttBrowserClient.on('connect', function(connack){
     console.log('Connection status',connack);
     mqttBrowserClient.subscribe('parking-spot/car-is-here');
     mqttBrowserClient.subscribe('parking-spot/image-is-taken');
-    mqttBrowserClient.subscribe('parking-spot/nothing-is-detected');
 });
 
 mqttBrowserClient.on('message', (topic, message) => {
@@ -85,8 +77,6 @@ mqttBrowserClient.on('message', (topic, message) => {
             return handleCarIsHere(message);
         case 'parking-spot/image-is-taken':
             return handleImageIsTaken(message);
-        case 'parking-spot/nothing-is-detected':
-            return handleNothingIsDetected(message);
     }
     console.log('No handler for topic %s', topic)
 });

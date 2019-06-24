@@ -1,8 +1,7 @@
 {
 	"arguments" : {
 		"mqtt_ip" : "10.0.0.3",
-		"publish_topic": "parking-spot/car-is-here",
-		"subscribe_topic": "parking-spot/image-is-taken",
+		"topics": ["parking-spot/car-is-here","parking-spot/image-is-taken"],
 		"desired_distance" : 20.0,
 		"time_to_sleep" : 1.0,
 		"id_number_of_sensor" : 1,

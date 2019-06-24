@@ -14,9 +14,53 @@ let mqttServerClient = mqtt.connect(args.mqtt_uri);
 
 let mongoServerClient;
 
+let parkingSpotsStatusJson = {
+}
+
+function handleCarIsHere(message){
+    let jsonMsg = JSON.parse(message.toString());
+    parkingSpotsStatusJson[jsonMsg.spot] = jsonMsg.spot_status;
+}
+
+function handleNothingIsDetected(message){
+    let jsonMsg = JSON.parse(message.toString());
+    console.log('No license plate detected by camera at spot', jsonMsg.spot);
+	if( parkingSpotsStatusJson[jsonMsg.spot] ){
+		console.log('Checking again');
+		mqttServerClient.publish(args.topics[0],JSON.stringify({ 'spot' : jsonMsg.spot,'spot_status': true }));
+	}else{
+		console.log('Car at spot', jsonMsg.spot, 'is gone already');
+	}
+}
+
+function handleImageIsTaken(message,collectionObj){
+	
+	let jsonMsg = JSON.parse(message.toString());
+	let dateObj = new Date();
+	let date = dateObj.getFullYear()+'-'+(dateObj.getMonth()+1)+'-'+dateObj.getDate();
+	let time = dateObj.getHours() + ":" + dateObj.getMinutes() + ":" + dateObj.getSeconds();
+
+	let messageObject = {
+
+		"spot" : jsonMsg.spot,
+		"text" : jsonMsg.text,
+		"image" : jsonMsg.image,
+		"time_stamp" : date + ' ' + time
+	}
+
+	collectionObj.insertOne(messageObject, (error,resultObj) =>{
+		if(error){
+			console.log("Error", error);
+		}else{
+			console.log("Result", resultObj.result);
+		}
+	});
+}
+
 let connectToMongoWithRetry = function() {
 
 	mongodb.MongoClient.connect(args.mongodb_uri,{ useNewUrlParser: true }, (error, client) => {
+
 		if(error){
 			console.error('Failed to connect to mongo on startup - retrying in 5 sec', error);
 			setTimeout(connectToMongoWithRetry,5000);
@@ -28,33 +72,19 @@ let connectToMongoWithRetry = function() {
 		const dataBaseObj = client.db(args.mongodb_database);
 
 		let collectionObj = dataBaseObj.collection(args.mongodb_collection);
+
 		collectionObj.createIndex( {"parker": 1});
 
 		mqttServerClient.on('message',(topic, message) => {
-
-		 	if (topic == 'parking-spot/image-is-taken') {
-
-		    	let jsonMsg = JSON.parse(message.toString());
-		    	let dateObj = new Date();
-		    	let date = dateObj.getFullYear()+'-'+(dateObj.getMonth()+1)+'-'+dateObj.getDate();
-		    	let time = dateObj.getHours() + ":" + dateObj.getMinutes() + ":" + dateObj.getSeconds();
-			
-		       	let messageObject = {
-
-		       		"spot" : jsonMsg.spot,
-		       		"text" : jsonMsg.text,
-		       		"image" : jsonMsg.image,
-		       		"time_stamp" : date+' '+time
-		       	}
-
-		       	collectionObj.insertOne(messageObject, (error,resultObj) =>{
-		       		if(error){
-		       			console.log("Error", error);
-		       		}else{
-		       			console.log("Result",resultObj.result);
-		       		}
-		       	});
-		    }
+			switch (topic) {
+				case args.topics[0]:
+            		return handleCarIsHere(message);
+            	case args.topics[1]:
+            		return handleImageIsTaken(message,collectionObj);
+       			case args.topics[2]:
+            		return handleNothingIsDetected(message);
+            }
+            console.log('No handler for topic %s', topic)
 		});
 	});
 }
@@ -80,6 +110,7 @@ app.get('/', (req,res) => {
 mqttServerClient.on('connect', (connack) => {
     console.log('Connection status to mqtt broker',connack);
     mqttServerClient.subscribe('parking-spot/image-is-taken');
+    mqttServerClient.subscribe('parking-spot/nothing-is-detected');
 });
 
 process.on('SIGINT', () => {

@@ -135,8 +135,8 @@ if __name__ == '__main__':
 			time_to_sleep = float(args['time_to_sleep'])
 			spot_number = args['id_number_of_sensor']
 
-			car_is_here = args['publish_topic']
-			image_is_taken = args['subscribe_topic']
+			car_is_here = args['topics'][0]
+			image_is_taken = args['topics'][1]
 
 			spot_taken = False
 			spot_free = False
