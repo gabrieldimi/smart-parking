@@ -11,6 +11,7 @@ class myThread (threading.Thread):
 		self.blue_pin = blue_pin
 		self.thread_working = True
 		self.do_blink = False
+		self.taken = False
 		self.alpr_recognition_done = False
 	def run(self):
 		blink(self.yellow_pin,self.blue_pin)
@@ -24,10 +25,6 @@ def blink(yellow_pin,blue_pin):
 	GPIO.output(blue_pin, GPIO.LOW)
 	t = threading.currentThread()
 	while getattr(t,"thread_working"):
-		if getattr(t,"alpr_recognition_done"):
-			GPIO.output(blue_pin,GPIO.HIGH)
-		else:
-			GPIO.output(blue_pin,GPIO.LOW)
 
 		while getattr(t, "do_blink"):
 			GPIO.output(yellow_pin, GPIO.HIGH)
@@ -35,17 +32,23 @@ def blink(yellow_pin,blue_pin):
 			GPIO.output(yellow_pin, GPIO.LOW)
 			time.sleep(blink_speed)
 
+		if getattr(t,"alpr_recognition_done") and getattr(t, "taken") and not getattr(t,"do_blink"):
+			GPIO.output(blue_pin,GPIO.HIGH)
+		else:
+			GPIO.output(blue_pin,GPIO.LOW)
+
 def on_message(client, userdata, message):
 	msg = str(message.payload.decode("utf-8"))
 	msg_as_json = json.loads(msg)
-	print("message received: ", msg)
 	print("message topic: ", message.topic)
 	if message.topic == car_is_here:
 		if msg_as_json['spot'] == spot_number and msg_as_json['spot_status'] :
 			blink_thread.do_blink = True
+			blink_thread.taken = True
 		elif msg_as_json['spot'] == spot_number and not msg_as_json['spot_status']:
 			blink_thread.do_blink = False
 			blink_thread.alpr_recognition_done = False
+			blink_thread.taken = False
 	elif message.topic == image_is_taken:
 		if msg_as_json['spot'] == spot_number:
 			blink_thread.do_blink = False
@@ -121,8 +124,7 @@ if __name__ == '__main__':
 			client.connect(BROKER_ADDRESS)
 			print("Connecting to MQTT broker: ",BROKER_ADDRESS)
 			client.loop_start()
-			time.sleep(4)
-
+			
 			trigger_pin = args['sensor_trigger']
 			echo_pin = args['sensor_echo']
 			red_pin = args['red_pin']
@@ -145,6 +147,8 @@ if __name__ == '__main__':
 
 			pinsInitialization()
 			while True:
+				print('Running...')
+				time.sleep(0.1)
 				sensorMeasuring()
 
 			blink_thread.thread_working = False
