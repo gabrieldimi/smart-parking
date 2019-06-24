@@ -16,13 +16,13 @@ startPythonScript();
 function failFast( milliseconds ){
 
 	setInterval(function() {
-		console.log('Server still running',(Date.now() - timeFromLastMessageFromSensor));
+		console.log('SERVER_INFO Running...');
 		if((Date.now() - timeFromLastMessageFromSensor) > (milliseconds+500)){ 
-			console.log('Restarting python script');
+			console.log('SERVER_INFO Restarting python script...');
 			shell_process.stdin.pause();
 			shell_process.stdout.pause();
 			shell_process.kill();
-			shell = new PythonShell('sensor.py', pythonShellOptions);
+			shell = new PythonShell('parking_spot.py', pythonShellOptions);
 			startPythonScript();
 		}
 	}, milliseconds);
@@ -31,13 +31,13 @@ function failFast( milliseconds ){
 
 function startPythonScript(){
 	shell.on('stderr', function (stderr) {
-		console.log('Stderr',stderr);
+		console.log('STDERR',stderr);
 	});
 
-	shell.on('message', function(distance){
+	shell.on('message', function(info){
 
 		timeFromLastMessageFromSensor = Date.now();
-		console.log('Distance measured as', distance)
+		console.log('INFO', info)
 	});
 
 	shell.end(function (err,code,signal) {

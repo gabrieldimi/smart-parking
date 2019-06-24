@@ -40,7 +40,7 @@ def blink(yellow_pin,blue_pin):
 def on_message(client, userdata, message):
 	msg = str(message.payload.decode("utf-8"))
 	msg_as_json = json.loads(msg)
-	print("message topic: ", message.topic)
+	print("Message topic:", message.topic)
 	if message.topic == car_is_here:
 		if msg_as_json['spot'] == spot_number and msg_as_json['spot_status'] :
 			blink_thread.do_blink = True
@@ -55,7 +55,7 @@ def on_message(client, userdata, message):
 			blink_thread.alpr_recognition_done = True
 
 def on_connect(client, userdata, flags, rc):
-	print("Connected to broker")
+	print("Connected to broker.",client._host,"at port", client._port)
 	client.subscribe(image_is_taken)
 	client.subscribe(car_is_here)
 
@@ -94,7 +94,7 @@ def sensorMeasuring():
 
 	if measured_distance <= desired_distance:
 		if not spot_taken:
-			print('spot is taken')
+			print('Spot is taken.')
 			GPIO.output(red_pin, GPIO.HIGH)
 			GPIO.output(green_pin, GPIO.LOW)
 			client.publish(car_is_here,json.dumps({ 'spot' : spot_number,'spot_status': True }))
@@ -102,14 +102,14 @@ def sensorMeasuring():
 			spot_free = False
 	else:
 		if not spot_free:
-			print('spot is free')
+			print('Spot is free')
 			GPIO.output(green_pin, GPIO.HIGH)
 			GPIO.output(red_pin, GPIO.LOW)
 			client.publish(car_is_here,json.dumps({ 'spot' : spot_number,'spot_status': False }))
 			spot_free = True
 			spot_taken = False
 	
-	print(measured_distance)
+	print('Distance measured:',measured_distance)
 
 if __name__ == '__main__':
 	try:
@@ -122,7 +122,7 @@ if __name__ == '__main__':
 			client.on_connect = on_connect
 			client.on_message = on_message
 			client.connect(BROKER_ADDRESS)
-			print("Connecting to MQTT broker: ",BROKER_ADDRESS)
+			print("Connecting to MQTT broker:",BROKER_ADDRESS)
 			client.loop_start()
 			
 			trigger_pin = args['sensor_trigger']
