@@ -8,8 +8,5 @@ The server uses *socket.io* to emit messages to the client's browser, informing 
 1. Clone repo
 2. Run `sudo apt-get update`
 3. Run `sudo apt-get install rpi.gpio`
-3. Run `sudo npm install`
-
-
-
-
+4. Run `sudo pip install paho-mqtt` if using python2, otherwise `sudo pip3 install paho-mqtt` for python3
+6. Run `sudo npm install`

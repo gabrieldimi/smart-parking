@@ -3,7 +3,6 @@ const args = require('./args.json').arguments;
 
 const express = require('express');
 let app = express();
-let fs = require('fs');
 let ip = require('ip');
 let path = require('path');
 let server = require('http').Server(app);
