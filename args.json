@@ -2,7 +2,7 @@
 	"arguments" : {
 		"port" : "9999",
 		"mqtt_uri" : "mqtt://localhost",
-		"mongodb_uri" : "mongodb://localhost:27017",
+		"mongodb_uri" : "mongodb://10.0.0.3:27017",
 		"mongodb_database" : "parkers",
 		"mongodb_collection" : "data",
 		"topics": ["parking-spot/car-is-here","parking-spot/image-is-taken","parking-spot/nothing-is-detected"],
