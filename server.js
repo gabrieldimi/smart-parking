@@ -109,6 +109,7 @@ app.get('/', (req,res) => {
 
 mqttServerClient.on('connect', (connack) => {
     console.log('Connection status to mqtt broker',connack);
+    mqttServerClient.subscribe('parking-spot/car-is-here');
     mqttServerClient.subscribe('parking-spot/image-is-taken');
     mqttServerClient.subscribe('parking-spot/nothing-is-detected');
 });
