@@ -97,7 +97,7 @@ def sensorMeasuring():
 			print('Spot is taken.')
 			GPIO.output(red_pin, GPIO.HIGH)
 			GPIO.output(green_pin, GPIO.LOW)
-			client.publish(car_is_here,json.dumps({ 'spot' : spot_number,'spot_status': True }))
+			client.publish(car_is_here,json.dumps({ 'spot' : spot_number,'spot_status': True, 'sender' : 'pi'}))
 			spot_taken = True
 			spot_free = False
 	else:
@@ -105,7 +105,7 @@ def sensorMeasuring():
 			print('Spot is free')
 			GPIO.output(green_pin, GPIO.HIGH)
 			GPIO.output(red_pin, GPIO.LOW)
-			client.publish(car_is_here,json.dumps({ 'spot' : spot_number,'spot_status': False }))
+			client.publish(car_is_here,json.dumps({ 'spot' : spot_number,'spot_status': False,'sender' : 'pi'}))
 			spot_free = True
 			spot_taken = False
 	

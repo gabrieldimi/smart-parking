@@ -26,7 +26,7 @@ function handleNothingIsDetected(message){
     console.log('No license plate detected by camera at spot', jsonMsg.spot);
 	if( parkingSpotsStatusJson[jsonMsg.spot] ){
 		console.log('Checking again');
-		mqttServerClient.publish(args.topics[0],JSON.stringify({ 'spot' : jsonMsg.spot,'spot_status': true }));
+		mqttServerClient.publish(args.topics[0],JSON.stringify({ 'spot' : jsonMsg.spot,'spot_status': true, 'sender' : 'server'}));
 	}else{
 		console.log('Car at spot', jsonMsg.spot, 'is gone already');
 	}
