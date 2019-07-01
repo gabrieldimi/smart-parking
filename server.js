@@ -43,8 +43,9 @@ function handleImageIsTaken(message,collectionObj){
 
 		"spot" : jsonMsg.spot,
 		"text" : jsonMsg.text,
+		"confidence" : jsonMsg.confidence,
+		"time_stamp" : date + ' ' + time,
 		"image" : jsonMsg.image,
-		"time_stamp" : date + ' ' + time
 	}
 
 	collectionObj.insertOne(messageObject, (error,resultObj) =>{
