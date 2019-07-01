@@ -10,9 +10,9 @@ The system works as follows:
 
 **It is important that the client browser and the android application are connected to the wifi access point of the raspberry pi.**
 
-## Instructions for building and starting project
+# Instructions for building and starting project
 
-# On raspberry pi
+## On raspberry pi
 1. Clone repository with `git clone https://github.com/gabrieldimi/smart-parking.git`
 2. Run `sudo apt-get update`
 3. Make sure python is installed (it should already be installed on raspbian image)
@@ -24,7 +24,7 @@ The system works as follows:
 9. Check **args.json** to configure GPIO pins and mqtt address
 10. Use pm2 to run application or alternatively run with `node pi_node.js`
 
-# On server
+## On server
 
 1. Clone repository with `git clone https://github.com/gabrieldimi/smart-parking.git`
 2. Run `sudo apt-get update`
@@ -38,5 +38,5 @@ The system works as follows:
 6. Check **args.json** to change mqtt and node server address
 6. Use pm2 to run application or alternatively run with `node server.js`
 
-# On android application
+## On android application
 Take a look at the readme from [android application using OpenALPR and Tesseract OCR](https://github.com/gabrieldimi/OpenAlprDroidApp)
