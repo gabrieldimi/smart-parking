@@ -1,4 +1,4 @@
-## Description
+# Description
 This project is for a mini smart parking system with four main compoments, namely **a browser application**, **a android application**, **a server** and **a raspberry pi**.
 
 The system works as follows:
