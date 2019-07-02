@@ -10,7 +10,7 @@ The system works as follows:
 
 **It is important that the devices, on which the browser app and the android app are running, are connected to the same wifi network as the server is.**
 
-### Each parking spot is made up of the raspberry pi with its sensor and LED lights and the android application. Therefore with more hardware, more parking spots are realizable. The system is at the moment configure for 10 parking spots. ###
+#### Each parking spot is made up of the raspberry pi with its sensor and LED lights and the android application. Therefore with more hardware, more parking spots are realizable. The system is at the moment configured for 10 parking spots. ####
 
 # Instructions for building and starting project
 
