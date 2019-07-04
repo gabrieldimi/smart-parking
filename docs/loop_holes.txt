@@ -1,4 +1,0 @@
-Bugs which can be used later:
-
-- Alpr doesn't care about depth
-- If car is changed quick enough, the newly parked one will not be analyzed
