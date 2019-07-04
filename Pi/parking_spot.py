@@ -32,7 +32,7 @@ def blink(yellow_pin,blue_pin):
 			GPIO.output(yellow_pin, GPIO.LOW)
 			time.sleep(blink_speed)
 
-		if getattr(t,"alpr_recognition_done") and getattr(t, "taken") and not getattr(t,"do_blink"):
+		if getattr(t,"alpr_recognition_done") and getattr(t, "taken") :
 			GPIO.output(blue_pin,GPIO.HIGH)
 		else:
 			GPIO.output(blue_pin,GPIO.LOW)
@@ -41,19 +41,23 @@ def on_message(client, userdata, message):
 	msg = str(message.payload.decode("utf-8"))
 	msg_as_json = json.loads(msg)
 	print("Message topic:", message.topic)
-	if message.topic == car_is_here:
-		if msg_as_json['spot'] == spot_number and msg_as_json['spot_status'] :
-			blink_thread.do_blink = True
-			blink_thread.taken = True
-		elif msg_as_json['spot'] == spot_number and not msg_as_json['spot_status']:
-			blink_thread.do_blink = False
-			blink_thread.alpr_recognition_done = False
-			blink_thread.taken = False
-	elif message.topic == image_is_taken:
-		if msg_as_json['spot'] == spot_number:
-			blink_thread.do_blink = False
-			blink_thread.alpr_recognition_done = True
-
+	try:
+		if msg_as_json['spot'] is not None:
+			if msg_as_json['spot'] == spot_number :
+				if message.topic == car_is_here:
+					if msg_as_json['spot_status'] :
+						blink_thread.do_blink = True
+						blink_thread.taken = True
+					else:
+						blink_thread.do_blink = False
+						blink_thread.alpr_recognition_done = False
+						blink_thread.taken = False
+				elif message.topic == image_is_taken:
+					blink_thread.do_blink = False
+					blink_thread.alpr_recognition_done = True
+	except NameError:
+		print ("This variable is not defined")
+		
 def on_connect(client, userdata, flags, rc):
 	print("Connected to broker.",client._host,"at port", client._port)
 	client.subscribe(image_is_taken)
