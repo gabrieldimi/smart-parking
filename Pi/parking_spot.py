@@ -1,6 +1,6 @@
 import RPi.GPIO as GPIO
-import time, sys, os, json, threading
 import paho.mqtt.client as mqtt
+import time, sys, os, json, threading, uuid
 
 class myThread (threading.Thread):
 	def __init__(self, threadID, name, yellow_pin, blue_pin):
@@ -32,7 +32,7 @@ def blink(yellow_pin,blue_pin):
 			GPIO.output(yellow_pin, GPIO.LOW)
 			time.sleep(blink_speed)
 
-		if getattr(t,"alpr_recognition_done") and getattr(t, "taken") and not getattr(t,"do_blink"):
+		if getattr(t,"alpr_recognition_done") and getattr(t, "taken"):
 			GPIO.output(blue_pin,GPIO.HIGH)
 		else:
 			GPIO.output(blue_pin,GPIO.LOW)
@@ -41,18 +41,24 @@ def on_message(client, userdata, message):
 	msg = str(message.payload.decode("utf-8"))
 	msg_as_json = json.loads(msg)
 	print("Message topic:", message.topic)
-	if message.topic == car_is_here:
-		if msg_as_json['spot'] == spot_number and msg_as_json['spot_status'] :
-			blink_thread.do_blink = True
-			blink_thread.taken = True
-		elif msg_as_json['spot'] == spot_number and not msg_as_json['spot_status']:
-			blink_thread.do_blink = False
-			blink_thread.alpr_recognition_done = False
-			blink_thread.taken = False
-	elif message.topic == image_is_taken:
-		if msg_as_json['spot'] == spot_number:
-			blink_thread.do_blink = False
-			blink_thread.alpr_recognition_done = True
+	try:
+
+		if msg_as_json['spot'] is not None:
+			if msg_as_json['spot'] == spot_number:
+				if message.topic == car_is_here:
+					if msg_as_json['spot_status']:
+						blink_thread.do_blink = True
+						blink_thread.taken = True
+					else:
+						blink_thread.do_blink = False
+						blink_thread.alpr_recognition_done = False
+						blink_thread.taken = False
+				elif message.topic == image_is_taken:
+					blink_thread.do_blink = False
+					blink_thread.alpr_recognition_done = True
+
+	except NameError:
+			print("This variable is not defined")
 
 def on_connect(client, userdata, flags, rc):
 	print("Connected to broker.",client._host,"at port", client._port)
@@ -82,6 +88,7 @@ def sensorMeasuring():
 	global pulse_start_time
 	global spot_taken
 	global spot_free
+	global uuid_for_mongo
 	global pulse_end_time
 
 	while GPIO.input(echo_pin) == 0:
@@ -95,9 +102,10 @@ def sensorMeasuring():
 	if measured_distance <= desired_distance:
 		if not spot_taken:
 			print('Spot is taken.')
+			uuid_for_mongo = uuid.uuid4()
 			GPIO.output(red_pin, GPIO.HIGH)
 			GPIO.output(green_pin, GPIO.LOW)
-			client.publish(car_is_here,json.dumps({ 'spot' : spot_number,'spot_status': True, 'sender' : 'pi'}))
+			client.publish(car_is_here,json.dumps({ 'uuid' : uuid_for_mongo, spot' : spot_number,'spot_status': True, 'sender' : 'pi'}))
 			spot_taken = True
 			spot_free = False
 	else:
@@ -105,7 +113,7 @@ def sensorMeasuring():
 			print('Spot is free')
 			GPIO.output(green_pin, GPIO.HIGH)
 			GPIO.output(red_pin, GPIO.LOW)
-			client.publish(car_is_here,json.dumps({ 'spot' : spot_number,'spot_status': False,'sender' : 'pi'}))
+			client.publish(car_is_here,json.dumps({ 'uuid' : uuid_for_mongo, 'spot' : spot_number,'spot_status': False,'sender' : 'pi'}))
 			spot_free = True
 			spot_taken = False
 	
@@ -140,6 +148,7 @@ if __name__ == '__main__':
 
 			spot_taken = False
 			spot_free = False
+			uuid_for_mongo = None
 
 			blink_speed = float(args['blink_speed'])
 			blink_thread = myThread(1,"alpr_recognition",yellow_pin,blue_pin)
