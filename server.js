@@ -16,45 +16,44 @@ let mongoServerClient;
 let parkingSpotsStatusJson = {
 }
 
-function handleCarIsHere(message){
+function handleCarIsHere(message,collectionObj){
     let jsonMsg = JSON.parse(message.toString());
     parkingSpotsStatusJson[jsonMsg.spot] = jsonMsg.spot_status;
+    
+    let messageObject = {
+    	"spot" : jsonMsg.spot,
+    	"arrival" : jsonMsg.arrival,
+    	"departure" : jsonMsg.departure,
+    	"image" : "Camera is on",
+    	"text"  : "No image shot"
+    }
+
+    collectionObj.updateOne({_id:jsonMsg.uuid}, {$set : messageObject}, {upsert:true})
+
 }
 
-function handleNothingIsDetected(message){
-    let jsonMsg = JSON.parse(message.toString());
-    console.log('No license plate detected by camera at spot', jsonMsg.spot);
+function handleNothingIsDetected(message,collectionObj){
+	let jsonMsg = JSON.parse(message.toString());
+	console.log('No license plate detected by camera at spot', jsonMsg.spot);
+	collectionObj.updateOne({_id:jsonMsg.uuid}, {$set : {'image': jsonMsg.image} })
+
 	if( parkingSpotsStatusJson[jsonMsg.spot] ){
 		console.log('Checking again');
-		mqttServerClient.publish(args.topics[0],JSON.stringify({ 'spot' : jsonMsg.spot,'spot_status': true, 'sender' : 'server'}));
+		mqttServerClient.publish(args.topics[0],JSON.stringify({ 'uuid' : jsonMsg.uuid, 'spot' : jsonMsg.spot,'spot_status': true, 'sender' : 'server'}));
 	}else{
 		console.log('Car at spot', jsonMsg.spot, 'is gone already');
 	}
 }
 
 function handleImageIsTaken(message,collectionObj){
-	
+
 	let jsonMsg = JSON.parse(message.toString());
-	let dateObj = new Date();
-	let date = dateObj.getFullYear()+'-'+(dateObj.getMonth()+1)+'-'+dateObj.getDate();
-	let time = dateObj.getHours() + ":" + dateObj.getMinutes() + ":" + dateObj.getSeconds();
-
 	let messageObject = {
-
-		"spot" : jsonMsg.spot,
-		"text" : jsonMsg.text,
-		"confidence" : jsonMsg.confidence,
-		"time_stamp" : date + ' ' + time,
-		"image" : jsonMsg.image,
-	}
-
-	collectionObj.insertOne(messageObject, (error,resultObj) =>{
-		if(error){
-			console.log("Error", error);
-		}else{
-			console.log("Result", resultObj.result);
-		}
-	});
+		"text" : jsonMsg.text, 
+      	"confidence" : jsonMsg.confidence,
+   		"image" : jsonMsg.image
+    }
+	collectionObj.updateOne({_id : jsonMsg.uuid}, { $set : messageObject });
 }
 
 let connectToMongoWithRetry = function() {
@@ -73,16 +72,14 @@ let connectToMongoWithRetry = function() {
 
 		let collectionObj = dataBaseObj.collection(args.mongodb_collection);
 
-		collectionObj.createIndex( {"parker": 1});
-
 		mqttServerClient.on('message',(topic, message) => {
 			switch (topic) {
 				case args.topics[0]:
-            		return handleCarIsHere(message);
+            		return handleCarIsHere(message,collectionObj);
             	case args.topics[1]:
             		return handleImageIsTaken(message,collectionObj);
        			case args.topics[2]:
-            		return handleNothingIsDetected(message);
+            		return handleNothingIsDetected(message,collectionObj);
             }
             console.log('No handler for topic %s', topic)
 		});

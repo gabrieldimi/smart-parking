@@ -1,6 +1,13 @@
 import RPi.GPIO as GPIO
 import paho.mqtt.client as mqtt
 import time, sys, os, json, threading, uuid
+from datetime import datetime
+
+class UUIDEncoder(json.JSONEncoder):
+	def default(self, object):
+		if isinstance(object,uuid.UUID):
+			return object.hex
+		return json.JSONEncoder.default(self,object)
 
 class myThread (threading.Thread):
 	def __init__(self, threadID, name, yellow_pin, blue_pin):
@@ -86,10 +93,11 @@ def sensorMeasuring():
 	GPIO.output(trigger_pin, GPIO.LOW)
 
 	global pulse_start_time
+	global pulse_end_time
 	global spot_taken
 	global spot_free
 	global uuid_for_mongo
-	global pulse_end_time
+	global arrival
 
 	while GPIO.input(echo_pin) == 0:
 		pulse_start_time = time.time()
@@ -101,23 +109,24 @@ def sensorMeasuring():
 
 	if measured_distance <= desired_distance:
 		if not spot_taken:
-			print('Spot is taken.')
-			uuid_for_mongo = uuid.uuid4()
+			print("Spot is taken.")
+			uuid_for_mongo = json.dumps(uuid.uuid4(), cls=UUIDEncoder).strip('\"')
 			GPIO.output(red_pin, GPIO.HIGH)
 			GPIO.output(green_pin, GPIO.LOW)
-			client.publish(car_is_here,json.dumps({ 'uuid' : uuid_for_mongo, spot' : spot_number,'spot_status': True, 'sender' : 'pi'}))
+			arrival = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+			client.publish(car_is_here,json.dumps({ 'uuid' : uuid_for_mongo, 'spot' : spot_number,'spot_status': True, 'sender' : 'pi', 'arrival' : arrival, 'departure' : '-'}))
 			spot_taken = True
 			spot_free = False
 	else:
 		if not spot_free:
-			print('Spot is free')
+			print("Spot is free")
 			GPIO.output(green_pin, GPIO.HIGH)
 			GPIO.output(red_pin, GPIO.LOW)
-			client.publish(car_is_here,json.dumps({ 'uuid' : uuid_for_mongo, 'spot' : spot_number,'spot_status': False,'sender' : 'pi'}))
+			client.publish(car_is_here,json.dumps({ 'uuid' : uuid_for_mongo, 'spot' : spot_number,'spot_status': False,'sender' : 'pi', 'arrival' : arrival, 'departure' : datetime.now().strftime("%d-%m-%Y %H:%M:%S")}))
 			spot_free = True
 			spot_taken = False
 	
-	print('Distance measured:',measured_distance)
+	print("Distance measured:",measured_distance)
 
 if __name__ == '__main__':
 	try:
@@ -146,9 +155,12 @@ if __name__ == '__main__':
 			car_is_here = args['topics'][0]
 			image_is_taken = args['topics'][1]
 
+			pulse_start_time = 0.0
+			pulse_end_time = 0.0
 			spot_taken = False
 			spot_free = False
 			uuid_for_mongo = None
+			arrival = None
 
 			blink_speed = float(args['blink_speed'])
 			blink_thread = myThread(1,"alpr_recognition",yellow_pin,blue_pin)
