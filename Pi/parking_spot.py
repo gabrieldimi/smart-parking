@@ -97,7 +97,6 @@ def sensorMeasuring():
 	global spot_taken
 	global spot_free
 	global uuid_for_mongo
-	global arrival
 
 	while GPIO.input(echo_pin) == 0:
 		pulse_start_time = time.time()
