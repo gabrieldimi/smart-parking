@@ -113,8 +113,7 @@ def sensorMeasuring():
 			uuid_for_mongo = json.dumps(uuid.uuid4(), cls=UUIDEncoder).strip('\"')
 			GPIO.output(red_pin, GPIO.HIGH)
 			GPIO.output(green_pin, GPIO.LOW)
-			arrival = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
-			client.publish(car_is_here,json.dumps({ 'uuid' : uuid_for_mongo, 'spot' : spot_number,'spot_status': True, 'sender' : 'pi', 'arrival' : arrival, 'departure' : '-'}))
+			client.publish(car_is_here,json.dumps({ 'uuid' : uuid_for_mongo, 'spot' : spot_number, 'spot_status': True, 'sender' : 'pi', 'arrival' : datetime.now().strftime("%d-%m-%Y %H:%M:%S") }))
 			spot_taken = True
 			spot_free = False
 	else:
@@ -122,7 +121,7 @@ def sensorMeasuring():
 			print("Spot is free")
 			GPIO.output(green_pin, GPIO.HIGH)
 			GPIO.output(red_pin, GPIO.LOW)
-			client.publish(car_is_here,json.dumps({ 'uuid' : uuid_for_mongo, 'spot' : spot_number,'spot_status': False,'sender' : 'pi', 'arrival' : arrival, 'departure' : datetime.now().strftime("%d-%m-%Y %H:%M:%S")}))
+			client.publish(car_is_here,json.dumps({ 'uuid' : uuid_for_mongo, 'spot' : spot_number, 'spot_status': False, 'sender' : 'pi', 'departure' : datetime.now().strftime("%d-%m-%Y %H:%M:%S") }))
 			spot_free = True
 			spot_taken = False
 	
@@ -160,8 +159,7 @@ if __name__ == '__main__':
 			spot_taken = False
 			spot_free = False
 			uuid_for_mongo = None
-			arrival = None
-
+			
 			blink_speed = float(args['blink_speed'])
 			blink_thread = myThread(1,"alpr_recognition",yellow_pin,blue_pin)
 			blink_thread.start()
