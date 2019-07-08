@@ -17,74 +17,77 @@ let parkingSpotsStatusJson = {
 }
 
 function handleCarIsHere(message,collectionObj){
-    let jsonMsg = JSON.parse(message.toString());
-    parkingSpotsStatusJson[jsonMsg.spot] = jsonMsg.spot_status;
-    
-    let messageObject = {
-    	"spot" : jsonMsg.spot,
-    	"arrival" : jsonMsg.arrival,
-    	"departure" : jsonMsg.departure,
-    	"image" : "Camera is on",
-    	"text"  : "No image shot"
-    }
-
-    collectionObj.updateOne({_id:jsonMsg.uuid}, {$set : messageObject}, {upsert:true})
-
+	let jsonMsg = JSON.parse(message.toString());
+	parkingSpotsStatusJson[jsonMsg.spot] = jsonMsg.spot_status;
+	
+	let messageObject = {
+		"spot" : jsonMsg.spot
+	}	
+	if(jsonMsg.spot_status){
+		messageObject.text = "No plate recognized";
+		messageObject.confidence = "0.0";
+		messageObject.image = "No image shot";
+		messageObject.arrival = jsonMsg.arrival;
+		messageObject.departure = "-";
+	}else{
+		messageObject.departure = jsonMsg.departure;
+	}
+	collectionObj.updateOne({_id:jsonMsg.uuid}, {$set : messageObject}, {upsert:true})
 }
 
 function handleNothingIsDetected(message,collectionObj){
 	let jsonMsg = JSON.parse(message.toString());
 	console.log('No license plate detected by camera at spot', jsonMsg.spot);
+	
 	collectionObj.updateOne({_id:jsonMsg.uuid}, {$set : {'image': jsonMsg.image} })
-
+	
 	if( parkingSpotsStatusJson[jsonMsg.spot] ){
 		console.log('Checking again');
 		mqttServerClient.publish(args.topics[0],JSON.stringify({ 'uuid' : jsonMsg.uuid, 'spot' : jsonMsg.spot,'spot_status': true, 'sender' : 'server'}));
-	}else{
+	}else
+	{
 		console.log('Car at spot', jsonMsg.spot, 'is gone already');
 	}
 }
 
 function handleImageIsTaken(message,collectionObj){
-
 	let jsonMsg = JSON.parse(message.toString());
 	let messageObject = {
 		"text" : jsonMsg.text, 
-      	"confidence" : jsonMsg.confidence,
+      		"confidence" : jsonMsg.confidence,
    		"image" : jsonMsg.image
-    }
+	}
 	collectionObj.updateOne({_id : jsonMsg.uuid}, { $set : messageObject });
 }
 
 let connectToMongoWithRetry = function() {
-
 	mongodb.MongoClient.connect(args.mongodb_uri,{ useNewUrlParser: true }, (error, client) => {
-
 		if(error){
 			console.error('Failed to connect to mongo on startup - retrying in 5 sec', error);
 			setTimeout(connectToMongoWithRetry,5000);
 		}
 		console.log('Connection to mongodb established');
-
+		
 		mongoServerClient = client;
 
 		const dataBaseObj = client.db(args.mongodb_database);
 
 		let collectionObj = dataBaseObj.collection(args.mongodb_collection);
-
+		
 		mqttServerClient.on('message',(topic, message) => {
 			switch (topic) {
 				case args.topics[0]:
-            		return handleCarIsHere(message,collectionObj);
-            	case args.topics[1]:
-            		return handleImageIsTaken(message,collectionObj);
-       			case args.topics[2]:
-            		return handleNothingIsDetected(message,collectionObj);
-            }
-            console.log('No handler for topic %s', topic)
+					return handleCarIsHere(message,collectionObj);
+				case args.topics[1]:
+					return handleImageIsTaken(message,collectionObj);
+				case args.topics[2]:
+					return handleNothingIsDetected(message,collectionObj);
+			}
+			console.log('No handler for topic %s', topic)
 		});
 	});
 }
+
 connectToMongoWithRetry();
 
 // Using pug engine for viewing html
@@ -105,10 +108,10 @@ app.get('/', (req,res) => {
 });
 
 mqttServerClient.on('connect', (connack) => {
-    console.log('Connection status to mqtt broker',connack);
-    mqttServerClient.subscribe('parking-spot/car-is-here');
-    mqttServerClient.subscribe('parking-spot/image-is-taken');
-    mqttServerClient.subscribe('parking-spot/nothing-is-detected');
+	console.log('Connection status to mqtt broker',connack);
+	mqttServerClient.subscribe('parking-spot/car-is-here');
+	mqttServerClient.subscribe('parking-spot/image-is-taken');
+	mqttServerClient.subscribe('parking-spot/nothing-is-detected');
 });
 
 process.on('SIGINT', () => {
