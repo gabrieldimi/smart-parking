@@ -18,34 +18,39 @@ let parkingSpotsStatusJson = {
 
 function handleCarIsHere(message,collectionObj){
 	let jsonMsg = JSON.parse(message.toString());
-	parkingSpotsStatusJson[jsonMsg.spot] = jsonMsg.spot_status;
-	
-	let messageObject = {
-		"spot" : jsonMsg.spot
-	}	
-	if(jsonMsg.spot_status){
-		messageObject.text = "No plate recognized";
-		messageObject.confidence = "0.0";
-		messageObject.image = "No image shot";
-		messageObject.arrival = jsonMsg.arrival;
-		messageObject.departure = "-";
+	if(jsonMsg.sender === "pi")
+	{
+		console.log("Message published to parking-spot/car-is-here by Pi");
+		parkingSpotsStatusJson[jsonMsg.spot] = jsonMsg.spot_status;
+
+		let messageObject = {
+			"spot" : jsonMsg.spot
+		}	
+		if(jsonMsg.spot_status){
+			messageObject.text = "No plate recognized";
+			messageObject.confidence = "0.0";
+			messageObject.image = "No image shot";
+			messageObject.arrival = jsonMsg.arrival;
+			messageObject.departure = "-";
+		}else{
+			messageObject.departure = jsonMsg.departure;
+		}
+		collectionObj.updateOne({_id : jsonMsg.uuid}, {$set : messageObject}, {upsert:true})
 	}else{
-		messageObject.departure = jsonMsg.departure;
+		console.log("Message published to parking-spot/car-is-here by Server, so do nothing.");
 	}
-	collectionObj.updateOne({_id:jsonMsg.uuid}, {$set : messageObject}, {upsert:true})
 }
 
 function handleNothingIsDetected(message,collectionObj){
 	let jsonMsg = JSON.parse(message.toString());
 	console.log('No license plate detected by camera at spot', jsonMsg.spot);
 	
-	collectionObj.updateOne({_id:jsonMsg.uuid}, {$set : {'image': jsonMsg.image} })
+	collectionObj.updateOne({_id : jsonMsg.uuid}, {$set : {'image': jsonMsg.image} })
 	
 	if( parkingSpotsStatusJson[jsonMsg.spot] ){
 		console.log('Checking again');
 		mqttServerClient.publish(args.topics[0],JSON.stringify({ 'uuid' : jsonMsg.uuid, 'spot' : jsonMsg.spot,'spot_status': true, 'sender' : 'server'}));
-	}else
-	{
+	}else{
 		console.log('Car at spot', jsonMsg.spot, 'is gone already');
 	}
 }
