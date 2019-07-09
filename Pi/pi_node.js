@@ -58,3 +58,4 @@ function startPythonScript(){
 	});
 
 	shell_process = shell.childProcess;
+}
