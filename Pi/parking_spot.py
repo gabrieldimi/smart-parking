@@ -23,7 +23,6 @@ class myThread (threading.Thread):
 	def run(self):
 		blink(self.yellow_pin,self.blue_pin)
 
-
 def blink(yellow_pin,blue_pin):
 	GPIO.setmode(GPIO.BOARD)
 	GPIO.setup(yellow_pin, GPIO.OUT)
@@ -47,7 +46,7 @@ def blink(yellow_pin,blue_pin):
 def on_message(client, userdata, message):
 	msg = str(message.payload.decode("utf-8"))
 	msg_as_json = json.loads(msg)
-	print("Message topic:", message.topic)
+	#print("Message topic:", message.topic)
 	try:
 
 		if msg_as_json['spot'] is not None:
@@ -64,11 +63,11 @@ def on_message(client, userdata, message):
 					blink_thread.do_blink = False
 					blink_thread.alpr_recognition_done = True
 
-	except NameError:
-			print("This variable is not defined")
+	except NameError as error:
+			print("This variable is not defined:",error)
 
 def on_connect(client, userdata, flags, rc):
-	print("Connected to broker.",client._host,"at port", client._port)
+	#print("Connected to broker.",client._host,"at port", client._port)
 	client.subscribe(image_is_taken)
 	client.subscribe(car_is_here)
 
@@ -80,7 +79,6 @@ def pinsInitialization():
 	GPIO.setup(red_pin, GPIO.OUT)
 	GPIO.setup(green_pin, GPIO.OUT)
 	GPIO.setwarnings(False)
-
 
 def sensorMeasuring():
 	GPIO.output(trigger_pin, GPIO.LOW)
@@ -108,8 +106,11 @@ def sensorMeasuring():
 
 	if measured_distance <= desired_distance:
 		if not spot_taken:
-			print("Spot is taken.")
-			uuid_for_mongo = json.dumps(uuid.uuid4(), cls=UUIDEncoder).strip('\"')
+			#print("Spot is taken.")
+			if uuid_for_mongo is None:
+				uuid_for_mongo = json.dumps(uuid.uuid4(), cls=UUIDEncoder).strip('\"')
+				print("UUID:",uuid_for_mongo)
+
 			GPIO.output(red_pin, GPIO.HIGH)
 			GPIO.output(green_pin, GPIO.LOW)
 			client.publish(car_is_here,json.dumps({ 'uuid' : uuid_for_mongo, 'spot' : spot_number, 'spot_status': True, 'sender' : 'pi', 'arrival' : datetime.now().strftime("%d-%m-%Y %H:%M:%S") }))
@@ -117,13 +118,14 @@ def sensorMeasuring():
 			spot_free = False
 	else:
 		if not spot_free:
-			print("Spot is free")
+			#print("Spot is free")
 			GPIO.output(green_pin, GPIO.HIGH)
 			GPIO.output(red_pin, GPIO.LOW)
 			client.publish(car_is_here,json.dumps({ 'uuid' : uuid_for_mongo, 'spot' : spot_number, 'spot_status': False, 'sender' : 'pi', 'departure' : datetime.now().strftime("%d-%m-%Y %H:%M:%S") }))
+			uuid_for_mongo = None
 			spot_free = True
 			spot_taken = False
-	
+
 	print("Distance measured:",measured_distance)
 
 if __name__ == '__main__':
@@ -139,7 +141,7 @@ if __name__ == '__main__':
 			client.connect(BROKER_ADDRESS)
 			print("Connecting to MQTT broker:",BROKER_ADDRESS)
 			client.loop_start()
-			
+
 			trigger_pin = args['sensor_trigger']
 			echo_pin = args['sensor_echo']
 			red_pin = args['red_pin']
@@ -158,10 +160,13 @@ if __name__ == '__main__':
 			spot_taken = False
 			spot_free = False
 			uuid_for_mongo = None
-			
+
 			blink_speed = float(args['blink_speed'])
 			blink_thread = myThread(1,"alpr_recognition",yellow_pin,blue_pin)
 			blink_thread.start()
+
+			if len(sys.argv) > 1:
+				uuid_for_mongo = sys.argv[1]
 
 			pinsInitialization()
 			while True:
