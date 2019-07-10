@@ -1,14 +1,15 @@
 import time
+
 import pigpio
 
 class ranger:
    """
-   This class encapsulates a type of acoustic ranger.  In particular
+   This class encapsulates a type of acoustic ranger. In particular
    the type of ranger with separate trigger and echo pins.
    A pulse on the trigger initiates the sonar ping and shortly
    afterwards a sonar pulse is transmitted and the echo pin
-   goes high.  The echo pins stays high until a sonar echo is
-   received (or the response times-out).  The time between
+   goes high. The echo pins stays high until a sonar echo is
+   received (or the response times-out). The time between
    the high and low edges indicates the sonar round trip time.
    """
 
@@ -17,7 +18,7 @@ class ranger:
       The class is instantiated with the Pi to use and the
       gpios connected to the trigger and echo pins.
       """
-      self.pi    = pigpio.pi()
+      self.pi    = pi
       self._trig = trigger
       self._echo = echo
 
@@ -39,13 +40,18 @@ class ranger:
       self._inited = True
 
    def _cbf(self, gpio, level, tick):
+      """
+      Level 0-2: 0 = change to low (a falling edge)
+                 1 = change to high (a rising edge)
+                 2 = no level change (a watchdog timeout)
+      """
       if gpio == self._trig:
          if level == 0: # trigger sent
             self._triggered = True
             self._high = None
       else:
          if self._triggered:
-            if level == 1:
+            if level == 1: 
                self._high = tick
             else:
                if self._high is not None:
@@ -55,7 +61,7 @@ class ranger:
 
    def read(self):
       """
-      Triggers a reading.  The returned reading is the number
+      Triggers a reading. The returned reading is the number
       of microseconds for the sonar round-trip.
       round trip cms = round trip time / 1000000.0 * 34030
       """

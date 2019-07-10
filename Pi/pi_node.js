@@ -45,7 +45,7 @@ function startPythonScript(){
 			last_uuid_from_sensor = info_split[1].trim();
 			console.log(last_uuid_from_sensor)
 		}
-		//console.log('INFO', info)
+		console.log('INFO', info)
 	});
 
 	shell.end(function (err,code,signal) {
