@@ -79,7 +79,7 @@ def sensorMeasuring():
 
 	measured_distance = float(sonar.read()) / 100
 
-	if measured_distance <= desired_distance:
+	if measured_distance > 1.0 and measured_distance <= desired_distance:
 		if not spot_taken:
 			#print("Spot is taken.")
 			if uuid_for_mongo is None:
