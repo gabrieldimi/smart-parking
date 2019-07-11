@@ -7,10 +7,12 @@ This project constructs a mini smart parking system using four main compoments, 
 3. The raspberry pi reads sensor data from a HC-SRO4 ultrasonic sensor and manipulates LED lights (red, green, yellow and blue). Once a given object is within a rang of i.e 50 cm. of the sensor (this value is saved in the config file *args.json*), the mqtt client running on the raspberry pi publishes a message to a specific topic saying that an object is present. Simultaneously, the raspberry pi subscribes to that specific topic and as soon as it receives a message, it manipulates the LED lights as wished.
 4. The android application uses the paho mqtt client to publish and subscribe to the mqtt broker running on the server. Once the mqtt client running on the android application receives a message that an object is in front of a sensor, a image is taken by the smartphone's camera. That image is then analyzed by openALPR (short for, [open automatic license plate recognition] (https://github.com/SandroMachado/openalpr-android.git)) for any license plate and once something is recognized, it is published and read by the browser application. The server also saves the parking data on a mongoDB database. This mongoDB collection containes documents with the following values: *__id, spot, arrival timestamp, departure timestamp, license plate text, confidence value and image*.
 
-
 **It is important that the devices, on which the browser app and the android app are running, as well as the raspberry pi are connected to the same wifi network as the server is.**
 
 #### Each parking spot is made up of the raspberry pi with its sensor and LED lights and the android application. Therefore with more hardware, more parking spots are realizable. The system is at the moment configured for 10 parking spots. ####
+
+##### The mongoDB data is visualized with the following project [MongoDB_SmartParking_Visual]
+(https://github.com/gabrieldimi/MongoDB_SmartParking_Visual). #####
 
 # Instructions for building and starting the project
 
