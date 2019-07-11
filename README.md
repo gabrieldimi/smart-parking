@@ -11,8 +11,7 @@ This project constructs a mini smart parking system using four main compoments, 
 
 #### Each parking spot is made up of the raspberry pi with its sensor and LED lights and the android application. Therefore with more hardware, more parking spots are realizable. The system is at the moment configured for 10 parking spots. ####
 
-##### The mongoDB data is visualized with the following project [MongoDB_SmartParking_Visual]
-(https://github.com/gabrieldimi/MongoDB_SmartParking_Visual). #####
+##### The mongoDB data is visualized with the following project [MongoDB_SmartParking_Visual](https://github.com/gabrieldimi/MongoDB_SmartParking_Visual). #####
 
 # Instructions for building and starting the project
 
