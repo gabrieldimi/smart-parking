@@ -1,7 +1,7 @@
 // Passed arguments
 const args = require('./args.json').arguments;
-
 const express = require('express');
+
 let app = express();
 let ip = require('ip');
 let fs = require('fs');
@@ -14,10 +14,8 @@ let bodyParser = require('body-parser');
 
 
 let mqttServerClient = mqtt.connect(args.mqtt_uri);
-
 let mongoServerClient;
 let mongoDatabaseObj;
-
 let parkingSpotsStatusJson = {
 }
 
@@ -105,12 +103,13 @@ connectToMongoWithRetry();
 
 // serve static files from the public folder
 app.use(express.static(__dirname + '/public'));
+// parse post form input
 app.use(bodyParser.urlencoded({ extended: true}));
 
 app.get('/', (req,res) => {
 	res.sendFile(path.join(__dirname + '/index.html'));
 });
-app.post('/login', (req,res) => {
+app.post('/', (req,res) => {
 
 	let user_id = req.body.user_id;
 	let password_hash = req.body.pwd;
@@ -123,45 +122,53 @@ app.post('/login', (req,res) => {
 		console.log("Manager trying to log in");
 
 		let collectionForManagementData = mongoDatabaseObj.collection(args.mongodb_collection_for_manager_data);
-		let managerDoc = collectionForManagementData.findOne({manager_id : user_id});
-
-		if(managerDoc){
-			let hashingSuccessful = bcrypt.compareSync(password_hash, managerDoc.pwd);
-	   		if(!hashingSuccessful){
-		    	console.log("Comparing password to dataset hash did not work");
-		    }else{
-		    	console.log("Redirecting to manager site");
-				res.sendFile(path.join(__dirname + '/index_manager.html'));
-    		}
-		}else{
-		 	if(key === undefined){
-		 		console.log("No key specified for registering manager, redirecting to user site");
-				res.sendFile(path.join(__dirname + '/index.html'));
-		 	}else{
-		 		if(key === args.key){
-					bcrypt.hash(password_hash,10,function(err, hash){
-						if(err){
-							console.log("Hashing of manager's pwd failed.",err);
-						}
-						collectionForManagementData.updateOne({manager_id : user_id}, {$set : {"pwd":hash}}, {upsert:true});
-						res.sendFile(path.join(__dirname + '/index_manager.html'));
-					});
-		 		}else{
-		 			console.log("False key for registration of new manager, redirecting to normal user site");
-		 			res.sendFile(path.join(__dirname + '/index.html'));
-		 		}
+		
+		collectionForManagementData.findOne({manager_id : user_id}, function(err,result){
+			if(err){
+				console.log("Error on searching for document",err);
+				return;
 			}
-		}
+
+			if(result){
+				console.log("Manager with user_id "+user_id+" exists");
+				let hashingSuccessful = bcrypt.compareSync(password_hash, result.pwd);
+		   		if(!hashingSuccessful){
+			    	console.log("Comparing password to dataset hash did not work");
+			    }else{
+			    	console.log("Redirecting to manager site");
+					res.sendFile(path.join(__dirname + '/index_manager.html'));
+	    		}
+			}else{
+			 	if(key === undefined){
+			 		console.log("No key specified for registering manager, redirecting to user site");
+					res.sendFile(path.join(__dirname + '/index.html'));
+			 	}else{
+			 		console.log("Manager trying to register")
+			 		if(key === args.key.toString()){
+						bcrypt.hash(password_hash,10,function(err, hash){
+							if(err){
+								console.log("Hashing of manager's pwd failed.",err);
+							}
+							collectionForManagementData.updateOne({manager_id : user_id}, {$set : {"pwd":hash}}, {upsert:true});
+							res.sendFile(path.join(__dirname + '/index_manager.html'));
+						});
+			 		}else{
+			 			console.log("False key for registration of new manager, redirecting to normal user site");
+			 			res.sendFile(path.join(__dirname + '/index.html'));
+			 		}
+				}
+			}
+
+		});
 	}
 });
 
 let server = https.createServer({
   key: fs.readFileSync(path.join(__dirname + '/server.key')),
   cert: fs.readFileSync(path.join(__dirname + '/server.cert'))
-}, app);
-
-server.listen(args.port, function () {
-  console.log(`Express running → ADDRESS ${ip.address()} on PORT ${server.address().port}`);
+}, app)
+.listen(args.port, function () {
+  console.log(`Express running → ADDRESS ${ip.address()} on PORT ${args.port}`);
 });
 
 mqttServerClient.on('connect', (connack) => {

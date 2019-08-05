@@ -8,7 +8,6 @@
 	<link rel="stylesheet" href="/css/form.css">
 	<script src="/js/mqtt.min.js"></script>
 	<script src="/js/jquery.min.js"></script>
-	<script src="/js/sha256.min.js"></script>
 	<script src="/js/client.js"></script>
 	<meta name="viewport" content="width=device-width initial-scale=1">
 </head>
@@ -20,7 +19,7 @@
 
 			<button class="open-button" onclick="openLoginForm()">Login</button>
 			<div class="form-popup" id="loginForm">
-			  <form action="/login" class="form-container" method="post">
+			  <form action="/" class="form-container" method="post">
 			    <h1>Login</h1>
 
 			    <label for="user_id"><b>User Id</b></label>
@@ -36,7 +35,7 @@
 			</div>
 
 			<div class="form-popup" id="registerForm">
-			  <form action="/login" class="form-container" method="post">
+			  <form action="/" class="form-container" method="post">
 			    <h1>Register</h1>
 
 			    <label for="user_id"><b>User Id</b></label>
