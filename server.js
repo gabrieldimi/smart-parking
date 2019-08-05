@@ -132,17 +132,19 @@ app.post('/', (req,res) => {
 				if(err){
 					console.log("Error during search for document, redirecting to user page",err);
 				}else{
-					
+
 					if(result){
 						console.log("Manager with user_id "+user_id+" exists");
 
 						let hashingSuccessful = bcrypt.compareSync(password_hash, result.pwd);
 				   		if(!hashingSuccessful){
 					    	console.log("Comparison of password to dataset hash not successful, redirecting to user page");
-					    }else{
+						}else{
 					    	console.log("Redirecting to manager page");
 					    	accessAsManagerAuthenticated = true;
 			    		}
+					}else{
+						console.log("Manager does not exist, redirecting to user page");
 					}
 				}	
 			});

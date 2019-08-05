@@ -4,11 +4,10 @@ console.log('Connection to Websocket at port', port, 'on host', host);
 
 let mqttBrowserClient = mqtt.connect('mqtt://10.0.0.3:9001');
 
-let pwd = document.getElementById("pwd");
-let repeatPwd = document.getElementById("repeated_pwd");
-let btnBubmitRegistration = document.getElementById("btnBubmitRegistration");
-repeatPwd.onkeyup = function(){
-    if(repeatPwd.value === pwd.value){
+function comparison(){
+    console.log("test")
+    let btnBubmitRegistration = document.getElementById("btnBubmitRegistration");
+    if($('#repeated_pwd').val() === $('#pwd').val()){
         btnBubmitRegistration.disabled = false;
     }else{
         btnBubmitRegistration.disabled = true;
