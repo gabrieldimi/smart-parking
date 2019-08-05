@@ -8,7 +8,7 @@ let path = require('path');
 let server = require('http').Server(app);
 let mqtt = require('mqtt');
 let mongodb = require('mongodb');
-let bcrypt = require('bcrypt');
+let bcrypt = require('bcryptjs');
 let sha256 = require('js-sha256').sha256;
 let bodyParser = require('body-parser');
 
@@ -127,14 +127,13 @@ app.get('/', (req,res) => {
 		let managerDoc = collectionForManagementData.findOne({manager_id : user_id});
 
 		if(managerDoc){
-			bcrypt.compare(password_hash, managerDoc.pwd, function(err, res) {
-	   			if(err){
-		    		console.log("Comparing password to dataset hash did not work");
-		    	}else{
-		    		console.log("Redirecting to manager site");
-					res.sendFile(path.join(__dirname + '/index_manager.html'));
-		    	}
-    		});
+			let hashingSuccessful = bcrypt.compareSync(password_hash, managerDoc.pwd);
+	   		if(!hashingSuccessful){
+		    	console.log("Comparing password to dataset hash did not work");
+		    }else{
+		    	console.log("Redirecting to manager site");
+				res.sendFile(path.join(__dirname + '/index_manager.html'));
+    		}
 		}else{
 		 	if(key === undefined){
 		 		console.log("No key specified for registering manager, redirecting to user site");
