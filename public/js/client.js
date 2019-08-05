@@ -5,7 +5,7 @@ console.log('Connection to Websocket at port', port, 'on host', host);
 let mqttBrowserClient = mqtt.connect('mqtt://10.0.0.3:9001');
 
 let pwd = document.getElementById("pwd");
-let repeatPwd = document.getElementById("repeatPwd");
+let repeatPwd = document.getElementById("repeated_pwd");
 
 repeatPwd.onkeyup = function(){
     if(repeatPwd.value.equals(pwd.value)){

@@ -4,12 +4,12 @@ const args = require('./args.json').arguments;
 const express = require('express');
 let app = express();
 let ip = require('ip');
+let fs = require('fs');
 let path = require('path');
-let server = require('http').Server(app);
+let https = require('https')
 let mqtt = require('mqtt');
 let mongodb = require('mongodb');
 let bcrypt = require('bcryptjs');
-let sha256 = require('js-sha256').sha256;
 let bodyParser = require('body-parser');
 
 
@@ -103,10 +103,6 @@ connectToMongoWithRetry();
 // Using pug engine for viewing html
 // app.set('view engine', 'pug');
 
-server.listen(args.port, () => {
-	console.log(`Express running → ADDRESS ${ip.address()} on PORT ${server.address().port}`);
-});
-
 // serve static files from the public folder
 app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.urlencoded({ extended: true}));
@@ -139,8 +135,7 @@ app.get('/', (req,res) => {
 		 		console.log("No key specified for registering manager, redirecting to user site");
 				res.sendFile(path.join(__dirname + '/index.html'));
 		 	}else{
-		 		let enteredKeyHash = sha256(key);
-		 		if(enteredKeyHash === sha256(args.key)){
+		 		if(key === args.key){
 					bcrypt.hash(password_hash,10,function(err, hash){
 						if(err){
 							console.log("Hashing of manager's pwd failed.",err);
@@ -155,6 +150,15 @@ app.get('/', (req,res) => {
 			}
 		}
 	}
+});
+
+let server = https.createServer({
+  key: fs.readFileSync(path.join(__dirname + '/server.key')),
+  cert: fs.readFileSync(path.join(__dirname + 'server.cert'))
+}, app);
+
+server.listen(args.port, function () {
+  console.log(`Express running → ADDRESS ${ip.address()} on PORT ${server.address().port}`);
 });
 
 mqttServerClient.on('connect', (connack) => {
