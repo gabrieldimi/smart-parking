@@ -108,6 +108,9 @@ app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.urlencoded({ extended: true}));
 
 app.get('/', (req,res) => {
+	res.sendFile(path.join(__dirname + '/index.html'));
+});
+app.post('/login', (req,res) => {
 
 	let user_id = req.body.user_id;
 	let password_hash = req.body.pwd;
