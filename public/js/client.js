@@ -6,12 +6,12 @@ let mqttBrowserClient = mqtt.connect('mqtt://10.0.0.3:9001');
 
 let pwd = document.getElementById("pwd");
 let repeatPwd = document.getElementById("repeated_pwd");
-
+let btnBubmitRegistration = document.getElementById("btnBubmitRegistration");
 repeatPwd.onkeyup = function(){
-    if(repeatPwd.value.equals(pwd.value)){
-        $('#submitRegistration').prop("disabled","false");
+    if(repeatPwd.value === pwd.value){
+        btnBubmitRegistration.disabled = false;
     }else{
-        $('#submitRegistration').prop("disabled","true");
+        btnBubmitRegistration.disabled = true;
     }
 }
 function openLoginForm() {
