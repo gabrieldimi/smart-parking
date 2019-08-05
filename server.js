@@ -82,7 +82,7 @@ let connectToMongoWithRetry = function() {
 
 		mongoDatabaseObj = client.db(args.mongodb_database);
 
-		let collectionObj = dataBaseObj.collection(args.mongodb_collection_for_park_data);
+		let collectionObj = mongoDatabaseObj.collection(args.mongodb_collection_for_park_data);
 
 		mqttServerClient.on('message',(topic, message) => {
 			switch (topic) {
@@ -154,7 +154,7 @@ app.get('/', (req,res) => {
 
 let server = https.createServer({
   key: fs.readFileSync(path.join(__dirname + '/server.key')),
-  cert: fs.readFileSync(path.join(__dirname + 'server.cert'))
+  cert: fs.readFileSync(path.join(__dirname + '/server.cert'))
 }, app);
 
 server.listen(args.port, function () {
