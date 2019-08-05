@@ -3,9 +3,10 @@
 		"port" : "9999",
 		"mqtt_uri" : "mqtt://localhost",
 		"mongodb_uri" : "mongodb://localhost:27017",
-		"mongodb_database" : "parkers",
-		"mongodb_collection" : "data",
+		"mongodb_database" : "park_system",
+		"mongodb_collection_for_park_data" : "parking_data",
+		"mongodb_collection_for_manager_data" : "manager_data",
 		"topics": ["parking-spot/car-is-here","parking-spot/image-is-taken","parking-spot/nothing-is-detected"],
-		"license_plate_pattern" : "^[A-Za-z]{1,3}[A-Za-z]{1,2}[0-9]{1,4}$"
+		"key" : "737JCSavesUs3!"
 	}
 }

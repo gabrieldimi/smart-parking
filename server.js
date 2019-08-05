@@ -8,10 +8,15 @@ let path = require('path');
 let server = require('http').Server(app);
 let mqtt = require('mqtt');
 let mongodb = require('mongodb');
+let bcrypt = require('bcrypt');
+let sha256 = require('js-sha256').sha256;
+let bodyParser = require('body-parser');
+
 
 let mqttServerClient = mqtt.connect(args.mqtt_uri);
 
 let mongoServerClient;
+let mongoDatabaseObj;
 
 let parkingSpotsStatusJson = {
 }
@@ -58,8 +63,8 @@ function handleNothingIsDetected(message,collectionObj){
 function handleImageIsTaken(message,collectionObj){
 	let jsonMsg = JSON.parse(message.toString());
 	let messageObject = {
-		"text" : jsonMsg.text, 
-      		"confidence" : jsonMsg.confidence,
+		"text" : jsonMsg.text,
+		"confidence" : jsonMsg.confidence,
    		"image" : jsonMsg.image
 	}
 	collectionObj.updateOne({_id : jsonMsg.uuid}, { $set : messageObject });
@@ -75,10 +80,10 @@ let connectToMongoWithRetry = function() {
 		
 		mongoServerClient = client;
 
-		const dataBaseObj = client.db(args.mongodb_database);
+		mongoDatabaseObj = client.db(args.mongodb_database);
 
-		let collectionObj = dataBaseObj.collection(args.mongodb_collection);
-		
+		let collectionObj = dataBaseObj.collection(args.mongodb_collection_for_park_data);
+
 		mqttServerClient.on('message',(topic, message) => {
 			switch (topic) {
 				case args.topics[0]:
@@ -104,12 +109,53 @@ server.listen(args.port, () => {
 
 // serve static files from the public folder
 app.use(express.static(__dirname + '/public'));
+app.use(bodyParser.urlencoded({ extended: true}));
 
 app.get('/', (req,res) => {
-	// res.render('index',{
-	//   title: 'Smart parking on 9th floor of DEC'
-	// });
-	res.sendFile(path.join(__dirname + '/index.html'));
+
+	let user_id = req.body.user_id;
+	let password_hash = req.body.pwd;
+	let key = req.body.key;
+
+	if(user_id === undefined || password_hash === undefined){
+		console.log("Redirecting to user site");
+		res.sendFile(path.join(__dirname + '/index.html'));
+	}else{
+		console.log("Manager trying to log in");
+
+		let collectionForManagementData = mongoDatabaseObj.collection(args.mongodb_collection_for_manager_data);
+		let managerDoc = collectionForManagementData.findOne({manager_id : user_id});
+
+		if(managerDoc){
+			bcrypt.compare(password_hash, managerDoc.pwd, function(err, res) {
+	   			if(err){
+		    		console.log("Comparing password to dataset hash did not work");
+		    	}else{
+		    		console.log("Redirecting to manager site");
+					res.sendFile(path.join(__dirname + '/index_manager.html'));
+		    	}
+    		});
+		}else{
+		 	if(key === undefined){
+		 		console.log("No key specified for registering manager, redirecting to user site");
+				res.sendFile(path.join(__dirname + '/index.html'));
+		 	}else{
+		 		let enteredKeyHash = sha256(key);
+		 		if(enteredKeyHash === sha256(args.key)){
+					bcrypt.hash(password_hash,10,function(err, hash){
+						if(err){
+							console.log("Hashing of manager's pwd failed.",err);
+						}
+						collectionForManagementData.updateOne({manager_id : user_id}, {$set : {"pwd":hash}}, {upsert:true});
+						res.sendFile(path.join(__dirname + '/index_manager.html'));
+					});
+		 		}else{
+		 			console.log("False key for registration of new manager, redirecting to normal user site");
+		 			res.sendFile(path.join(__dirname + '/index.html'));
+		 		}
+			}
+		}
+	}
 });
 
 mqttServerClient.on('connect', (connack) => {
