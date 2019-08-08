@@ -117,20 +117,20 @@ app.post('/', (req,res) => {
 	let password_hash = req.body.pwd;
 	let key = req.body.key;
 
-	accessAsManagerAuthenticated = false;
-
 	if(user_id === undefined || password_hash === undefined){
 		console.log("User id or password are not defined, redirecting to user page");
+		res.sendFile(path.join(__dirname + '/index.html'));
 	}else{
 
+		let collectionForManagementData = mongoDatabaseObj.collection(args.mongodb_collection_for_manager_data);
+			
 		if(key === undefined){
 			console.log("Manager trying to log in ...");
 
-			let collectionForManagementData = mongoDatabaseObj.collection(args.mongodb_collection_for_manager_data);
-			
 			collectionForManagementData.findOne({manager_id : user_id}, function(err,result){
 				if(err){
 					console.log("Error during search for document, redirecting to user page",err);
+					res.sendFile(path.join(__dirname + '/index.html'));
 				}else{
 
 					if(result){
@@ -139,12 +139,14 @@ app.post('/', (req,res) => {
 						let hashingSuccessful = bcrypt.compareSync(password_hash, result.pwd);
 				   		if(!hashingSuccessful){
 					    	console.log("Comparison of password to dataset hash not successful, redirecting to user page");
+							res.sendFile(path.join(__dirname + '/index.html'));
 						}else{
 					    	console.log("Redirecting to manager page");
-					    	accessAsManagerAuthenticated = true;
+					    	res.sendFile(path.join(__dirname + '/index_manager.html'));
 			    		}
 					}else{
 						console.log("Manager does not exist, redirecting to user page");
+						res.sendFile(path.join(__dirname + '/index.html'));
 					}
 				}	
 			});
@@ -156,23 +158,19 @@ app.post('/', (req,res) => {
 				bcrypt.hash(password_hash,10,function(err, hash){
 			 		if(err){
 						console.log("Hashing of manager's pwd failed, redirecting to user page",err);
+						res.sendFile(path.join(__dirname + '/index.html'));
 					}else{
 						console.log("Manager has registered, redirecting to manager page");
 						collectionForManagementData.updateOne({manager_id : user_id}, {$set : {"pwd":hash}}, {upsert:true});
-						accessAsManagerAuthenticated = true;
+						res.sendFile(path.join(__dirname + '/index_manager.html'));
 					}
 				});
 
 			}else{
 			 	console.log("False key for registration of a new manager, redirecting to user page");
+			 	res.sendFile(path.join(__dirname + '/index.html'));
 			}
 		}
-	}
-
-	if(accessAsManagerAuthenticated){
-		res.sendFile(path.join(__dirname + '/index_manager.html'));
-	}else{
-		res.sendFile(path.join(__dirname + '/index.html'));
 	}
 });
 
