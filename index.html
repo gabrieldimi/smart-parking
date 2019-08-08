@@ -3,64 +3,91 @@
 
 <head>
 	<title>Smart Parking</title>
-	<meta charset="UTF-8"> 
+	<meta charset="UTF-8">
 	<link rel="stylesheet" href="/css/style.css">
-	<link rel="stylesheet" href="/css/form.css">
+	<link rel="stylesheet" href="/bootstrap-4.3.1-dist/css/bootstrap.min.css" charset="utf-8">
 	<script src="/js/mqtt.min.js"></script>
 	<script src="/js/jquery.min.js"></script>
+	<script src="/bootstrap-4.3.1-dist/js/bootstrap.min.js"></script>
 	<script src="/js/client.js"></script>
 	<meta name="viewport" content="width=device-width initial-scale=1">
 </head>
 
 <body>
-	<main>
-		<header class="header">
-			<h1>Smart parking on 9th floor of DEC</h1>
-
-			<button class="open-button" onclick="openLoginForm()">Login</button>
-			<div class="form-popup" id="loginForm">
-			  <form action="/" class="form-container" method="post">
-			    <h1>Login</h1>
-
-			    <label for="user_id"><b>User Id</b></label>
-			    <input type="text" placeholder="Enter user id" name="user_id" required>
-
-			    <label for="psw"><b>Password</b></label>
-			    <input type="password" placeholder="Enter Password" name="pwd" required>
-
-			    <button type="submit" class="btn">Login</button>
-			    <button type="button" class="btn cancel" onclick="openRegisterForm()">Register</button>
-			    <button type="button" class="btn cancel" onclick="closeLoginForm()">Close</button>
-			  </form>
+	<div class="container">
+		<div class="fixed-top">
+			<div class="text-center pt-2" style="background-color:#122769; color:#FFFFFF">
+				<h1 class="d-inline">Smart parking on 9th floor of DEC</h1>
+				<button type="button" class="ml-5 mb-3 btn btn-primary d-inline" data-toggle="modal" data-target="#formLoginRegister">
+					Login as manager
+				</button>
 			</div>
-
-			<div class="form-popup" id="registerForm">
-			  <form action="/" class="form-container" method="post">
-			    <h1>Register</h1>
-
-			    <label for="user_id"><b>User Id</b></label>
-			    <input type="text" placeholder="Enter user id" name="user_id" required>
-
-				<label for="key"><b>Key</b></label>
-			    <input type="text" placeholder="Enter registration key" name="key" required>
-
-			    <label for="pwd"><b>Password</b></label>
-			    <input type="password" placeholder="Enter Password" name="pwd" id="pwd" required>
-
-			    <label for="repeated_pwd"><b>Repeat Password</b></label>
-			    <input type="password" placeholder="Repeat Password" name="repeated_pwd" id="repeated_pwd" onkeyup="comparison()" required>
-
-			    <button type="submit" class="btn" id="btnBubmitRegistration">Register</button>
-			    <button type="button" class="btn cancel" onclick="closeRegisterForm()">Close</button>
-			  </form>
+		</div>
+		<div class="modal fade" id="formLoginRegister" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Access authenticator</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="row">
+							<div class="col-sm-2">
+								<a class="btn btn-primary" data-toggle="collapse" href="#login" role="button" aria-expanded="true" aria-controls="login">
+									Login
+								</a>
+							</div>
+							<p class="col-sm-1 pt-2 pl-3">or</p>
+							<div class="col-sm-2 mr-auto">
+								<a class="btn btn-primary" data-toggle="collapse" href="#register" role="button" aria-expanded="true" aria-controls="register">
+									Register
+								</a>
+							</div>
+						</div>
+						
+						<div class="collapse" id="register" data-parent="#formLoginRegister">
+							<form action="/" class="form-container" method="post" oninput='repeated_pwd.setCustomValidity(repeated_pwd.value != pwd.value ? "Passwords do not match." : "");'>
+								<div class="form-group">
+									<label for="user_id">User id</label>
+									<input type="text" class="form-control" id="user_id" name="user_id" placeholder="Enter user id">
+									<label for="key">Key</label>
+									<input type="text" class="form-control" placeholder="Enter registration key" id="key" name="key">
+									<label for="pwd">Password</label>
+									<input type="password" class="form-control" id="pwd" name="pwd" placeholder="Enter password">
+									<label for="pwd">Repeated password</label>
+									<input type="password" class="form-control" id="repeated_pwd" name="repeated_pwd" placeholder="Repeat password">
+								</div>
+								<button type="submit" class="btn btn-outline-success">Register</button>
+							</form>
+						</div>
+						
+						<div class="collapse show" id="login" data-parent="#formLoginRegister">
+							<form action="/" class="form-container" method="post">
+								<div class="form-group">
+									<label for="user_id">User id</label>
+									<input type="text" class="form-control" id="user_id" name="user_id" placeholder="Enter user id">
+								</div>
+								<div class="form-group">
+									<label for="pwd">Password</label>
+									<input type="password" class="form-control" id="pwd" name="pwd" placeholder="Enter password">
+								</div>
+								<button type="submit" class="btn btn-outline-success">Login</button>
+								
+							</form>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					</div>
+				</div>
 			</div>
-
-		</header>
-	</main>
-	<div id="main">
-		<div id="center">
-			<svg id="svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" style="position:relative;overflow:hidden;" transform="rotate(-90)" width="900" height="1200" viewBox="160 1005 900 900">
-				<g transform="scale(1.3,1.3)">
+		</div>
+		
+		<div class="container">
+			<svg id="svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" transform="rotate(-90) scale(1.2,1.2)" width="750" height="1200" viewBox="0 580 800 800">
+				<g>
 					<g width="217.134" height="228.905" transform="scale(1,1) translate(364.047,1036.022)">
 						<g transform="scale(1,1) translate(0,0)" fill="none" stroke="#000000" stroke-opacity="1">
 							<path d="M0,228.905 L0,0 L217.134,0 L217.134,228.905 L0,228.905 z" stroke-width="12.409" stroke-dasharray="none"></path>
