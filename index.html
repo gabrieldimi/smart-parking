@@ -5,10 +5,10 @@
 	<title>Smart Parking</title>
 	<meta charset="UTF-8">
 	<link rel="stylesheet" href="/css/style.css">
-	<link rel="stylesheet" href="/bootstrap-4.3.1-dist/css/bootstrap.min.css" charset="utf-8">
+	<link rel="stylesheet" href="bootstrap-4.3.1-dist/css/bootstrap.min.css" charset="utf-8">
 	<script src="/js/mqtt.min.js"></script>
-	<script src="/js/jquery.min.js"></script>
-	<script src="/bootstrap-4.3.1-dist/js/bootstrap.min.js"></script>
+	<script src="js/jquery.min.js"></script>
+	<script src="bootstrap-4.3.1-dist/js/bootstrap.min.js"></script>
 	<script src="/js/client.js"></script>
 	<meta name="viewport" content="width=device-width initial-scale=1">
 </head>
@@ -46,35 +46,41 @@
 								</a>
 							</div>
 						</div>
-						
+
 						<div class="collapse" id="register" data-parent="#formLoginRegister">
 							<form action="/" class="form-container" method="post" oninput='repeated_pwd.setCustomValidity(repeated_pwd.value != pwd.value ? "Passwords do not match." : "");'>
 								<div class="form-group">
 									<label for="user_id">User id</label>
-									<input type="text" class="form-control" id="user_id" name="user_id" placeholder="Enter user id">
+									<input type="text" class="form-control" id="user_id" name="user_id" placeholder="Enter user id" required>
+								</div>
+								<div class="form-group">
 									<label for="key">Key</label>
-									<input type="text" class="form-control" placeholder="Enter registration key" id="key" name="key">
+									<input type="text" class="form-control" placeholder="Enter registration key" id="key" name="key" required>
+								</div>
+								<div class="form-group">
 									<label for="pwd">Password</label>
-									<input type="password" class="form-control" id="pwd" name="pwd" placeholder="Enter password">
+									<input type="password" class="form-control" id="pwd" name="pwd" minlength="8" placeholder="Enter password" required>
+								</div>
+								<div class="form-group">
 									<label for="pwd">Repeated password</label>
-									<input type="password" class="form-control" id="repeated_pwd" name="repeated_pwd" placeholder="Repeat password">
+									<input type="password" class="form-control" id="repeated_pwd" name="repeated_pwd" minlength="8" placeholder="Repeat password" required>
 								</div>
 								<button type="submit" class="btn btn-outline-success">Register</button>
 							</form>
 						</div>
-						
+
 						<div class="collapse show" id="login" data-parent="#formLoginRegister">
 							<form action="/" class="form-container" method="post">
 								<div class="form-group">
 									<label for="user_id">User id</label>
-									<input type="text" class="form-control" id="user_id" name="user_id" placeholder="Enter user id">
+									<input type="text" class="form-control" id="user_id" name="user_id" placeholder="Enter user id" required>
 								</div>
 								<div class="form-group">
 									<label for="pwd">Password</label>
-									<input type="password" class="form-control" id="pwd" name="pwd" placeholder="Enter password">
+									<input type="password" class="form-control" id="pwd" name="pwd" minlength="8" placeholder="Enter password" required>
 								</div>
 								<button type="submit" class="btn btn-outline-success">Login</button>
-								
+
 							</form>
 						</div>
 					</div>
@@ -84,7 +90,7 @@
 				</div>
 			</div>
 		</div>
-		
+
 		<div class="container">
 			<svg id="svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" transform="rotate(-90) scale(1.2,1.2)" width="750" height="1200" viewBox="0 580 800 800">
 				<g>
