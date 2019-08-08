@@ -4,32 +4,6 @@ console.log('Connection to Websocket at port', port, 'on host', host);
 
 let mqttBrowserClient = mqtt.connect('mqtt://10.0.0.3:9001');
 
-function comparison(){
-    console.log("test")
-    let btnBubmitRegistration = document.getElementById("btnBubmitRegistration");
-    if($('#repeated_pwd').val() === $('#pwd').val()){
-        btnBubmitRegistration.disabled = false;
-    }else{
-        btnBubmitRegistration.disabled = true;
-    }
-}
-function openLoginForm() {
-  document.getElementById("loginForm").style.display = "block";
-}
-
-function openRegisterForm(){
-    closeLoginForm();
-    document.getElementById("registerForm").style.display = "block";
-}
-
-function closeLoginForm() {
-  document.getElementById("loginForm").style.display = "none";
-}
-
-function closeRegisterForm() {
-  document.getElementById("registerForm").style.display = "none";
-}
-
 function addCar( parkingSpotIdNumber ){
 	console.log('Parking spot',parkingSpotIdNumber, 'is taken');
     $('#car'+parkingSpotIdNumber).removeClass('free');
