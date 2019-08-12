@@ -42,3 +42,7 @@ This project constructs a mini smart parking system using four main compoments, 
 
 ## On android application
 Take a look at the readme from [android application using OpenALPR and Tesseract OCR](https://github.com/gabrieldimi/OpenAlprDroidApp)
+
+## Here is a view of the components in relation to another.
+
+![Component diagram](https://docs/Component_diagram.png)
