@@ -45,4 +45,4 @@ Take a look at the readme from [android application using OpenALPR and Tesseract
 
 ## Here is a view of the components in relation to another.
 
-![Component diagram](https://docs/Component_diagram.png)
+![Component diagram](https://github.com/gabrieldimi/smart-parking/blob/mqtt_branch_extend/docs/Component_diagram.png)
