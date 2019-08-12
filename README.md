@@ -1,5 +1,5 @@
 # Description
-This project constructs a mini smart parking system using four main compoments, namely **a browser application**, **a android application**, **a server** and **a raspberry pi**.
+This project constructs a mini smart parking system using four main compoments, namely **two browser applications**, **a android application**, **a server** and **a raspberry pi**.
 
 #### The system works as follows:
 1. The server runs a MQTT broker and allows mqtt clients to publish and subscribe to customized topics. It also runs a nodeJS server using express. The nodeJS server delivers a html document to the client's browser, as well as renders new information when needed.  
