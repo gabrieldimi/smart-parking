@@ -64,6 +64,7 @@ def on_connect(client, userdata, flags, rc):
 	client.subscribe(car_is_here)
 
 def setToDefault(isBegin):
+	# Preparing GPIOs for LEDs
 	pi.write(red_gpio,0)
 	pi.write(yellow_gpio,0)
 	pi.write(blue_gpio,0)
@@ -73,6 +74,10 @@ def setToDefault(isBegin):
 		pi.write(green_gpio,0)
 
 def sensorMeasuring():
+	""" 
+	Once the distance measured is equal to or less than the desired distance,
+	then activate LED lights accordingly and publish message to broker that a car has parked.
+	"""
 	global spot_taken
 	global spot_free
 	global uuid_for_mongo
@@ -105,6 +110,7 @@ def sensorMeasuring():
 
 if __name__ == '__main__':
 	try:
+		# Preparing for measurements
 		with open('args.json') as arguments:
 			args = json.load(arguments)['arguments']
 			#print(json.dumps(args))
@@ -122,6 +128,7 @@ if __name__ == '__main__':
 			car_is_here = args['topics'][0]
 			image_is_taken = args['topics'][1]
 
+			# Initializing mqtt client and connecting to mqtt broker
 			client = mqtt.Client('pi_sensors')
 			client.on_connect = on_connect
 			client.on_message = on_message
@@ -145,6 +152,7 @@ if __name__ == '__main__':
 				uuid_for_mongo = sys.argv[1]
 
 			while True:
+				# Starting with measurement
 				sensorMeasuring()
 				time.sleep(time_to_sleep);
 

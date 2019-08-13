@@ -16,6 +16,8 @@ let bodyParser = require('body-parser');
 let mqttServerClient = mqtt.connect(args.mqtt_uri);
 let mongoServerClient;
 let mongoDatabaseObj;
+
+//Stores the status of the parking spots
 let parkingSpotsStatusJson = {
 }
 
@@ -111,10 +113,15 @@ app.get('/', (req,res) => {
 	res.sendFile(path.join(__dirname + '/index.html'));
 });
 
+/* 
+* If manager, redirect to manager page;
+* If normal user, redirect to user page. 
+*/
 app.post('/', (req,res) => {
 
 	let user_id = req.body.user_id;
 	let password_hash = req.body.pwd;
+	// This key is used for registration, in order to make sure that the real manager is registering
 	let key = req.body.key;
 
 	if(user_id === undefined || password_hash === undefined){
@@ -174,6 +181,7 @@ app.post('/', (req,res) => {
 	}
 });
 
+// Starting https-server with local key and certificate
 let server = https.createServer({
   key: fs.readFileSync(path.join(__dirname + '/server.key')),
   cert: fs.readFileSync(path.join(__dirname + '/server.cert'))
@@ -191,7 +199,7 @@ mqttServerClient.on('connect', (connack) => {
 
 process.on('SIGINT', () => {
 	mongoServerClient.close(() => {
-		console.log('Mongo database connection closed on app termination');
+		console.log('Mongo database connection closed due to app termination');
 		process.exit(0);
 	});
 });

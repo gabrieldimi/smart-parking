@@ -1,7 +1,7 @@
 {
   "name": "Smart-Parking-System",
   "version": "1.1.2",
-  "description": "",
+  "description": "This project consists of 2 parts, the server, running express, a mongodb client and a mqqt client, and a pi, running python cli applications.",
   "main": "server.js",
   "author": "Gabriel Dimitrov",
   "license": "MIT",

@@ -1,8 +1,11 @@
+/*
+* Runs python scripts and restarts them, if needed.
+*/
 let {PythonShell} = require('python-shell');
 
 let pythonShellOptions = {
 	mode: 'text',
-	pythonOptions: ['-u'], // get print results in real-time
+	pythonOptions: ['-u'], // get print results from python script in real-time
 };
 
 let shell = new PythonShell('parking_spot.py', pythonShellOptions);
@@ -18,8 +21,8 @@ startPythonScript();
 function failFast( milliseconds ){
 
 	setInterval(function() {
-		console.log('SERVER_INFO Running...');
-		if((Date.now() - timeFromLastMessageFromSensor) > (milliseconds+500)){ 
+		console.log('SERVER_INFO Server is running...');
+		if((Date.now() - timeFromLastMessageFromSensor) > (milliseconds+500)){
 			console.log('SERVER_INFO Restarting python script...');
 			shell_process.stdin.pause();
 			shell_process.stdout.pause();
@@ -40,6 +43,10 @@ function startPythonScript(){
 	shell.on('message', function(info){
 
 		timeFromLastMessageFromSensor = Date.now();
+		/* If python script doesn't print for a certain amount of time, indicating failure, 
+		*  the script would be restarted. The restarted script is passed the last UUID,
+		*  which was received before the script failed. The UUID is used for saving the parking data into the mongo database.
+		*/
 		let info_split = info.split(':');
 		if(info_split[0] === 'UUID'){
 			last_uuid_from_sensor = info_split[1].trim();
