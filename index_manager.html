@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Smart Parking</title>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/bootstrap-4.3.1-dist/css/bootstrap.min.css" charset="utf-8">
+	<script src="/js/mqtt.min.js"></script>
+	<script src="/js/jquery.min.js"></script>
+	<script src="/bootstrap-4.3.1-dist/js/bootstrap.min.js"></script>
+	<script src="/js/client_manager.js"></script>
+	<meta name="viewport" content="width=device-width initial-scale=1">
+</head>
+
+<body>
+	<div class="fixed-top">
+		<div class="text-center pt-2 pb-2" style="background-color:#122769; color:#FFFFFF">
+			<h1>Smart parking on 9th floor of DEC</h1>
+		</div>
+	</div>
+	
+	<br><br><br><br><br><br><br>
+	<div id="main">
+		<div id="left">
+			<h2>License plates</h2>
+			<div class="list-type">
+				<ol id="platelist"></ol>
+			</div>
+		</div>
+		<div id="center">
+			<svg id="svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" style="position:relative;overflow:hidden;" transform="rotate(-90)" width="900" height="1200" viewBox="160 1005 900 900">
+				<g transform="scale(1.3,1.3)">
+					<g width="217.134" height="228.905" transform="scale(1,1) translate(364.047,1036.022)">
+						<g transform="scale(1,1) translate(0,0)" fill="none" stroke="#000000" stroke-opacity="1">
+							<path d="M0,228.905 L0,0 L217.134,0 L217.134,228.905 L0,228.905 z" stroke-width="12.409" stroke-dasharray="none"></path>
+							<g>
+								<rect id="imageframe" width="190" height="200" stroke="#122769" stroke-opacity="1" stroke-width="3" transform="translate(13,14)" fill="none"></rect>
+								<image class="free" id="licenseplate" xlink:href="" transform="rotate(90)" height="180" width="180" x="24" y="-198.5"></image>
+							</g>
+						</g>
+					</g>
+					<g width="585.642" height="867.608" transform="scale(1,1) translate(181.706,684.255)">
+						<g transform="scale(1,1) translate(0,0)" fill="none" stroke="#000000" stroke-opacity="1">
+							<path d="M564.968,669.525 L366.044,669.525 L366.044,760.941 L545.193,760.941 L545.193,867.608 L41.553,867.608 L41.553,749.441 L12.991,749.441 L12.991,203.649 L97.407,203.649 L97.407,263.034 L215.726,263.034 L215.726,131.441 L0,131.441 L0,1.459 L585.46,0 L585.642,128.184 L564.968,128.274 L564.968,669.525 z" stroke-width="11.833" stroke-dasharray="none"></path>
+						</g>
+					</g>
+					<g width="193.367" height="203.749" transform="scale(1,1) translate(200.614,1352.689)">
+						<g transform="scale(1,1) translate(0,0)" fill="#000000" stroke="#000000" stroke-opacity="1">
+							<path d="M0,0 L193.367,0 L193.367,203.749" fill="none" stroke-width="11.833" stroke-dasharray="none"></path>
+							<g>
+								<g stroke-dasharray="none">
+									<path d="M-11.833,-11.833L11.833,-11.833L11.833,11.833L-11.833,11.833z" stroke-width="0" fill="none"></path>
+								</g>
+							</g>
+						</g>
+					</g>
+					<g width="47.167" height="14" transform="rotate(90,394.061,1413.123) scale(1,1) translate(370.478,1406.123)">
+						<g stroke="#BFBFBF" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="47.167" height="14" transform="scale(1,1) translate(0,0)" fill="#FFFFFF" fill-opacity="1">
+							<rect width="47.167" height="14"></rect>
+						</g>
+					</g>
+					<g width="47.244" height="14" transform="rotate(90,394.061,1502.403) scale(1,1) translate(370.439,1495.403)">
+						<g stroke="#BFBFBF" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="47.244" height="14" transform="scale(1,1) translate(0,0)" fill="#FFFFFF" fill-opacity="1">
+							<rect width="47.244" height="14"></rect>
+						</g>
+					</g>
+					<g width="0" height="103.85" transform="scale(1,1) translate(548.202,1451.113)">
+						<g transform="scale(1,1) translate(0,0)" fill="#000000" stroke="#000000" stroke-opacity="1">
+							<path d="M0,0 L0,103.85" fill="none" stroke-width="11.833" stroke-dasharray="none"></path>
+							<g>
+								<g stroke-dasharray="none">
+									<path d="M-11.833,-11.833L11.833,-11.833L11.833,11.833L-11.833,11.833z" stroke-width="0" fill="none"></path>
+								</g>
+							</g>
+						</g>
+					</g>
+					<g width="47.333" height="14" transform="rotate(90.1,548.283,1509.208) scale(1,1) translate(524.616,1502.208)">
+						<g stroke="#BFBFBF" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="47.333" height="14" transform="scale(1,1) translate(0,0)" fill="#FFFFFF" fill-opacity="1">
+							<rect width="47.333" height="14"></rect>
+						</g>
+					</g>
+					<g width="78.74" height="14" transform="rotate(90,746.754,1215.436) scale(1,1) translate(707.384,1208.436)">
+						<g stroke="#BFBFBF" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="78.74" height="14" transform="scale(1,1) translate(0,0)" fill="#FFFFFF" fill-opacity="1">
+							<rect width="78.74" height="14"></rect>
+						</g>
+					</g>
+					<g width="78.74" height="14" transform="rotate(90,194.777,1088.956) scale(1,1) translate(155.407,1081.956)">
+						<g stroke="#BFBFBF" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="78.74" height="14" transform="scale(1,1) translate(0,0)" fill="#FFFFFF" fill-opacity="1">
+							<rect width="78.74" height="14"></rect>
+						</g>
+					</g>
+					<g width="206.059" height="121.798" transform="scale(1,1) translate(546.002,690.726)">
+						<g transform="scale(1,1) translate(0,0)" fill="#000000" stroke="#000000" stroke-opacity="1">
+							<path d="M206.059,121.798 L0,121.798 L0,0" fill="none" stroke-width="11.833" stroke-dasharray="none"></path>
+							<g>
+								<g stroke-dasharray="none">
+									<path d="M194.226,109.965L217.892,109.965L217.892,133.631L194.226,133.631z" stroke-width="0" fill="none"></path>
+								</g>
+							</g>
+						</g>
+					</g>
+					<g width="194.755" height="138.833" transform="scale(1,1) translate(546.002,808.581)">
+						<g transform="scale(1,1) translate(0,0)" fill="#000000" stroke="#000000" stroke-opacity="1">
+							<path d="M0,0 L0,138.833 L194.755,138.833" fill="none" stroke-width="11.833" stroke-dasharray="none"></path>
+							<g>
+								<g stroke-dasharray="none">
+									<path d="M-11.833,-11.833L11.833,-11.833L11.833,11.833L-11.833,11.833z" stroke-width="0" fill="none"></path>
+								</g>
+							</g>
+						</g>
+					</g>
+					<g width="47.167" height="14" transform="scale(1,1) translate(582.459,1346.7)">
+						<g stroke="#BFBFBF" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="47.167" height="14" transform="scale(1,1) translate(0,0)" fill="#FFFFFF" fill-opacity="1">
+							<rect width="47.167" height="14"></rect>
+						</g>
+					</g>
+					<g width="47.333" height="14" transform="scale(1,1) translate(648.816,1346.7)">
+						<g stroke="#BFBFBF" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="47.333" height="14" transform="scale(1,1) translate(0,0)" fill="#FFFFFF" fill-opacity="1">
+							<rect width="47.333" height="14"></rect>
+						</g>
+					</g>
+					<g width="47.333" height="14" transform="rotate(90,547.83,1399.28) scale(1,1) translate(524.163,1392.28)">
+						<g stroke="#BFBFBF" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="47.333" height="14" transform="scale(1,1) translate(0,0)" fill="#FFFFFF" fill-opacity="1">
+							<rect width="47.333" height="14"></rect>
+						</g>
+					</g>
+					<g width="47.167" height="14" transform="rotate(90,546.086,910.248) scale(1,1) translate(522.502,903.248)">
+						<g stroke="#BFBFBF" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="47.167" height="14" transform="scale(1,1) translate(0,0)" fill="#FFFFFF" fill-opacity="1">
+							<rect width="47.167" height="14"></rect>
+						</g>
+					</g>
+					<g width="0" height="128.288" transform="scale(1,1) translate(396.801,691.114)">
+						<g transform="scale(1,1) translate(0,0)" fill="#000000" stroke="#000000" stroke-opacity="1">
+							<path d="M0,0 L0,128.288" fill="none" stroke-width="11.833" stroke-dasharray="none"></path>
+							<g>
+								<g stroke-dasharray="none">
+									<path d="M-11.833,-11.833L11.833,-11.833L11.833,11.833L-11.833,11.833z" stroke-width="0" fill="none"></path>
+								</g>
+							</g>
+						</g>
+					</g>
+					<g width="47.333" height="14" transform="rotate(90,396.881,767.541) scale(1,1) translate(373.214,760.541)">
+						<g stroke="#BFBFBF" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="47.333" height="14" transform="scale(1,1) translate(0,0)" fill="#FFFFFF" fill-opacity="1">
+							<rect width="47.333" height="14"></rect>
+						</g>
+					</g>
+					<g width="47.167" height="14" transform="rotate(90,546.083,762.256) scale(1,1) translate(522.499,755.256)">
+						<g stroke="#BFBFBF" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="47.167" height="14" transform="scale(1,1) translate(0,0)" fill="#FFFFFF" fill-opacity="1">
+							<rect width="47.167" height="14"></rect>
+						</g>
+					</g>
+					<g width="71" height="14" transform="rotate(180,339.55,947.37) scale(1,1) translate(304.05,940.37)">
+						<g stroke="#BFBFBF" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="71" height="14" transform="scale(1,1) translate(0,0)" fill="#FFFFFF" fill-opacity="1">
+							<rect width="71" height="14"></rect>
+						</g>
+					</g>
+					<g width="82.107" height="0" transform="scale(1,1) translate(200.614,946.982)">
+						<g transform="scale(1,1) translate(0,0)" fill="#000000" stroke="#000000" stroke-opacity="1">
+							<path d="M0,0 L82.107,0" fill="none" stroke-width="11.833" stroke-dasharray="none"></path>
+							<g>
+								<g stroke-dasharray="none">
+									<path d="M-11.833,-11.833L11.833,-11.833L11.833,11.833L-11.833,11.833z" stroke-width="0" fill="none"></path>
+								</g>
+							</g>
+						</g>
+					</g>
+					<g width="35.04" height="14" transform="scale(1,1) translate(222.132,939.902)">
+						<g stroke="#BFBFBF" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="35.04" height="14" transform="scale(1,1) translate(0,0)" fill="#FFFFFF" fill-opacity="1">
+							<rect width="35.04" height="14"></rect>
+						</g>
+					</g>
+					<g width="59.055" height="31.496" transform="rotate(360,709.649,981.33) scale(1,1) translate(680.121,965.582)">
+						<g id="parkingSlotGroup2" stroke="#4BACC6" stroke-opacity="1" stroke-width="1" stroke-dasharray="none" width="59.055" height="31.496" transform="scale(1,1) translate(0,0)" fill="#122769" fill-opacity="1">
+							<rect id="spot2" width="59.055" height="31.496"></rect>
+							<image class="free" id="car2" xlink:href="/images/car.png" transform="rotate(-90)" y="3" height="53" width="52" x="-42"></image>
+						</g>
+					</g>
+					<g width="31.496" height="59.055" transform="scale(1,1) translate(326.661,1485.123)">
+						<g id="parkingSlotGroup10" stroke="#4BACC6" stroke-opacity="1" stroke-width="1" stroke-dasharray="none" width="31.496" height="59.055" transform="scale(1,1) translate(0,0)" fill="#122769" fill-opacity="1">
+							<rect id="spot10" width="31.496" height="59.055"></rect>
+							<image class="free" id="car10" xlink:href="/images/car.png" y="3" transform="rotate(0)" width="52" height="53" x="-11"></image>
+						</g>
+					</g>
+					<g width="31.496" height="59.055" transform="scale(1,1) translate(507.062,811.881)">
+						<g id="parkingSlotGroup1" stroke="#4BACC6" stroke-opacity="1" stroke-width="1" stroke-dasharray="none" width="31.496" height="59.055" transform="scale(1,1) translate(0,0)" fill="#122769" fill-opacity="1">
+							<rect id="spot1" width="31.496" height="59.055"></rect>
+							<image class="free" id="car1" xlink:href="/images/car.png" width="52" height="53" transform="rotate(-180)" x="-42" y="-56"></image>
+						</g>
+					</g>
+					<g width="47.333" height="14" transform="rotate(90,397.512,879.113) scale(1,1) translate(373.845,872.113)">
+						<g stroke="#BFBFBF" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="47.333" height="14" transform="scale(1,1) translate(0,0)" fill="#FFFFFF" fill-opacity="1">
+							<rect width="47.333" height="14"></rect>
+						</g>
+					</g>
+					<g width="97.5" height="57.167" transform="rotate(90,297.211,1435.24) scale(1,1) translate(248.461,1406.656)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="97.5" height="57.167" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="97.5" height="57.167"></rect>
+						</g>
+						<g width="97.5541000366211" height="57.166666666666664" transform="scale(1,1) translate(0,0)">
+							<text width="97.5541000366211" height="24.999998092651367" transform="scale(1,1) translate(0,16.08333428700765)" xml:space="preserve">
+								<tspan xml:space="preserve" text-rendering="optimizeSpeed" font-size="22.22222222222222" font-weight="normal" font-style="normal" fill="#000000" opacity="1" x="0" text-anchor="start" y="19.792" textLength="97.5541000366211" style="font-family: Arial, Helvetica Neue, Helvetica, sans-serif;">CyberSec</tspan>
+							</text>
+						</g>
+					</g>
+					<g width="35.833" height="26.167" transform="rotate(90,609.398,1501.58) scale(1,1) translate(591.481,1488.496)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="35.833" height="26.167" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="35.833" height="26.167"></rect>
+						</g>
+						<g width="35.83333333333333" height="26.166666666666664" transform="scale(1,1) translate(0,0)">
+							<text width="35.83333333333333" height="24.999998092651367" transform="scale(1,1) translate(0,0.5833342870076486)" xml:space="preserve">
+								<tspan xml:space="preserve" text-rendering="optimizeSpeed" font-size="22.22222222222222" font-weight="normal" font-style="normal" fill="#000000" opacity="1" x="0" text-anchor="start" y="19.792" textLength="35.812503814697266" style="font-family: Arial, Helvetica Neue, Helvetica, sans-serif;">IIoT</tspan>
+							</text>
+						</g>
+					</g>
+					<g width="60.5" height="26.167" transform="rotate(90,620.919,879.498) scale(1,1) translate(590.669,866.415)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="60.5" height="26.167" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="60.5" height="26.167"></rect>
+						</g>
+						<g width="60.51564025878906" height="26.166666666666664" transform="scale(1,1) translate(0,0)">
+							<text width="60.51564025878906" height="24.999998092651367" transform="scale(1,1) translate(0,0.5833342870076486)" xml:space="preserve">
+								<tspan xml:space="preserve" text-rendering="optimizeSpeed" font-size="22.22222222222222" font-weight="normal" font-style="normal" fill="#000000" opacity="1" x="0" text-anchor="start" y="19.792" textLength="60.51564025878906" style="font-family: Arial, Helvetica Neue, Helvetica, sans-serif;">Public</tspan>
+							</text>
+						</g>
+					</g>
+					<g width="74" height="26" transform="rotate(90,619.891,751.399) scale(1,1) translate(582.891,738.399)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="74" height="26" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="74" height="26"></rect>
+						</g>
+						<g width="74.10942077636719" height="26" transform="scale(1,1) translate(0,0)">
+							<text width="74.10942077636719" height="24.999998092651367" transform="scale(1,1) translate(0,0.5000009536743164)" xml:space="preserve">
+								<tspan xml:space="preserve" text-rendering="optimizeSpeed" font-size="22.22222222222222" font-weight="normal" font-style="normal" fill="#000000" opacity="1" x="0" text-anchor="start" y="19.792" textLength="74.10942077636719" style="font-family: Arial, Helvetica Neue, Helvetica, sans-serif;">Kitchen</tspan>
+							</text>
+						</g>
+					</g>
+					<g width="30.833" height="26" transform="rotate(90,569.698,1399.983) scale(1,1) translate(554.281,1386.983)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="30.833" height="26" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="30.833" height="26"></rect>
+						</g>
+						<g width="30.86538314819336" height="26" transform="scale(1,1) translate(0,0)">
+							<text width="30.86538314819336" height="24.999998092651367" transform="scale(1,1) translate(0,0.5000009536743164)" xml:space="preserve">
+								<tspan xml:space="preserve" text-rendering="optimizeSpeed" font-size="22.22222222222222" font-weight="normal" font-style="normal" fill="#000000" opacity="1" x="0" text-anchor="start" y="19.792" textLength="30.86538314819336" style="font-family: Arial, Helvetica Neue, Helvetica, sans-serif;">SC</tspan>
+							</text>
+						</g>
+					</g>
+					<g width="92.667" height="26" transform="scale(1,1) translate(593.055,1366.483)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="92.667" height="26" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="92.667" height="26"></rect>
+						</g>
+						<g width="92.66666666666666" height="26" transform="scale(1,1) translate(0,0)">
+							<text width="92.66666666666666" height="24.999998092651367" transform="scale(1,1) translate(0,0.5000009536743164)" xml:space="preserve">
+								<tspan xml:space="preserve" text-rendering="optimizeSpeed" font-size="22.22222222222222" font-weight="normal" font-style="normal" fill="#000000" opacity="1" x="0" text-anchor="start" y="19.792" textLength="92.61779022216797" style="font-family: Arial, Helvetica Neue, Helvetica, sans-serif;">Elevators</tspan>
+							</text>
+						</g>
+					</g>
+					<g width="80.333" height="26" transform="scale(1,1) translate(297.849,914.122)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="80.333" height="26" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="80.333" height="26"></rect>
+						</g>
+						<g width="80.33333333333333" height="26" transform="scale(1,1) translate(0,0)">
+							<text width="80.33333333333333" height="24.999998092651367" transform="scale(1,1) translate(0,0.5000009536743164)" xml:space="preserve">
+								<tspan xml:space="preserve" text-rendering="optimizeSpeed" font-size="22.22222222222222" font-weight="normal" font-style="normal" fill="#000000" opacity="1" x="0" text-anchor="start" y="19.792" textLength="80.2824935913086" style="font-family: Arial, Helvetica Neue, Helvetica, sans-serif;">Elevator</tspan>
+							</text>
+						</g>
+					</g>
+					<g width="30.833" height="26" transform="rotate(90,373.944,879.142) scale(1,1) translate(358.527,866.142)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="30.833" height="26" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="30.833" height="26"></rect>
+						</g>
+						<g width="30.86538314819336" height="26" transform="scale(1,1) translate(0,0)">
+							<text width="30.86538314819336" height="24.999998092651367" transform="scale(1,1) translate(0,0.5000009536743164)" xml:space="preserve">
+								<tspan xml:space="preserve" text-rendering="optimizeSpeed" font-size="22.22222222222222" font-weight="normal" font-style="normal" fill="#000000" opacity="1" x="0" text-anchor="start" y="19.792" textLength="30.86538314819336" style="font-family: Arial, Helvetica Neue, Helvetica, sans-serif;">SC</tspan>
+							</text>
+						</g>
+					</g>
+					<g width="64.167" height="26" transform="rotate(90,316.977,749.561) scale(1,1) translate(284.894,736.561)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="64.167" height="26" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="64.167" height="26"></rect>
+						</g>
+						<g width="64.21514892578125" height="26" transform="scale(1,1) translate(0,0)">
+							<text width="64.21514892578125" height="24.999998092651367" transform="scale(1,1) translate(0,0.5000009536743164)" xml:space="preserve">
+								<tspan xml:space="preserve" text-rendering="optimizeSpeed" font-size="22.22222222222222" font-weight="normal" font-style="normal" fill="#000000" opacity="1" x="0" text-anchor="start" y="19.792" textLength="64.21514892578125" style="font-family: Arial, Helvetica Neue, Helvetica, sans-serif;">Extern</tspan>
+							</text>
+						</g>
+					</g>
+					<g width="0" height="248.78" transform="scale(1,1) translate(474.201,694.861)">
+						<g transform="scale(1,1) translate(0,0)" fill="#000000" stroke="#000000" stroke-opacity="1">
+							<path d="M0,0 L0,248.78" fill="none" stroke-width="3" stroke-dasharray="9,3"></path>
+							<g>
+								<g stroke-dasharray="none">
+									<path d="M-3,-3L3,-3L3,3L-3,3z" stroke-width="0" fill="none"></path>
+								</g>
+							</g>
+						</g>
+					</g>
+					<g width="59.055" height="0" transform="scale(1,1) translate(416.348,947.982)">
+						<g transform="scale(1,1) translate(0,0)" fill="#000000" stroke="#000000" stroke-opacity="1">
+							<path d="M0,0 L59.055,0" fill="none" stroke-width="8" stroke-dasharray="none"></path>
+							<g>
+								<g stroke-dasharray="none">
+									<path d="M-8,-8L8,-8L8,8L-8,8z" stroke-width="0" fill="none"></path>
+								</g>
+							</g>
+						</g>
+					</g>
+					<g width="321.161" height="318.061" transform="scale(1,1) translate(311.521,991.382)">
+						<g transform="scale(1,1) translate(0,0)" stroke="#000000" fill="none" stroke-opacity="1">
+							<path d="M0,63.612 a63.612,63.612 0 0,1 63.612,-63.612 l193.936,0 a63.612,63.612 0 0,1 63.612,63.612 l0,190.836 a63.612,63.612 0 0,1 -63.612,63.612 l-193.936,0 a63.612,63.612 0 0,1 -63.612,-63.612 z" stroke-width="3" stroke-dasharray="9,3"></path>
+						</g>
+					</g>
+					<g width="0" height="195.064" transform="scale(1,1) translate(471.201,1347.883)">
+						<g transform="scale(1,1) translate(0,0)" fill="#000000" stroke="#000000" stroke-opacity="1">
+							<path d="M0,195.064 L0,0" fill="none" stroke-width="3" stroke-dasharray="9,3"></path>
+							<g>
+								<g stroke-dasharray="none">
+									<path d="M-3,192.064L3,192.064L3,198.064L-3,198.064z" stroke-width="0" fill="none"></path>
+								</g>
+							</g>
+						</g>
+					</g>
+					<g width="59.167" height="0" transform="scale(1,1) translate(469.541,1351.883)">
+						<g transform="scale(1,1) translate(0,0)" fill="#000000" stroke="#000000" stroke-opacity="1">
+							<path d="M0,0 L59.167,0" fill="none" stroke-width="8" stroke-dasharray="none"></path>
+							<g>
+								<g stroke-dasharray="none">
+									<path d="M-8,-8L8,-8L8,8L-8,8z" stroke-width="0" fill="none"></path>
+								</g>
+							</g>
+						</g>
+					</g>
+					<g width="69.44" height="44" transform="scale(1,1) translate(672.921,959.782)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="2" stroke-dasharray="6,2" width="69.44" height="44" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="69.44" height="44"></rect>
+						</g>
+					</g>
+					<g width="59.055" height="31.496" transform="rotate(360,709.616,1034.497) scale(1,1) translate(680.088,1018.749)">
+						<g id="parkingSlotGroup3" stroke="#4BACC6" stroke-opacity="1" stroke-width="1" stroke-dasharray="none" width="59.055" height="31.496" transform="scale(1,1) translate(0,0)" fill="#122769" fill-opacity="1">
+							<rect id="spot3" width="59.055" height="31.496"></rect>
+							<image class="free" id="car3" xlink:href="/images/car.png" y="3" transform="rotate(-90)" width="52" height="53" x="-42"></image>
+						</g>
+					</g>
+					<g width="69.333" height="44" transform="scale(1,1) translate(673.921,1013.082)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="2" stroke-dasharray="6,2" width="69.333" height="44" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="69.333" height="44"></rect>
+						</g>
+					</g>
+					<g width="59.055" height="31.496" transform="rotate(360,709.722,1086.977) scale(1,1) translate(680.195,1071.229)">
+						<g id="parkingSlotGroup4" stroke="#4BACC6" stroke-opacity="1" stroke-width="1" stroke-dasharray="none" width="59.055" height="31.496" transform="scale(1,1) translate(0,0)" fill="#122769" fill-opacity="1">
+							<rect id="spot4" width="59.055" height="31.496"></rect>
+							<image class="free" id="car4" xlink:href="/images/car.png" y="3" transform="rotate(-90)" width="52" height="53" x="-42"></image>
+						</g>
+					</g>
+					<g width="69.333" height="44" transform="scale(1,1) translate(674.028,1065.562)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="2" stroke-dasharray="6,2" width="69.333" height="44" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="69.333" height="44"></rect>
+						</g>
+					</g>
+					<g width="59" height="31.5" transform="scale(1,1) translate(202.121,1199.402)">
+						<g id="parkingSlotGroup5" stroke="#4BACC6" stroke-opacity="1" stroke-width="1" stroke-dasharray="none" width="59" height="31.5" transform="scale(1,1) translate(0,0)" fill="#122769" fill-opacity="1">
+							<rect id="spot5" width="59" height="31.5"></rect>
+							<image class="free" id="car5" xlink:href="/images/car.png" y="3" transform="rotate(-90)" width="52" height="53" x="-42"></image>
+						</g>
+					</g>
+					<g width="69.333" height="44" transform="scale(1,1) translate(196.954,1193.736)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="2" stroke-dasharray="6,2" width="69.333" height="44" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="69.333" height="44"></rect>
+						</g>
+					</g>
+					<g width="59" height="31.5" transform="scale(1,1) translate(202.98,1250.243)">
+						<g id="parkingSlotGroup6" stroke="#4BACC6" stroke-opacity="1" stroke-width="1" stroke-dasharray="none" width="59" height="31.5" transform="scale(1,1) translate(0,0)" fill="#122769" fill-opacity="1">
+							<rect id="spot6" width="59" height="31.5"></rect>
+							<image class="free" id="car6" xlink:href="/images/car.png" y="3" transform="rotate(-90)" width="52" height="53" x="-42"></image>
+						</g>
+					</g>
+					<g width="69.333" height="44" transform="scale(1,1) translate(197.814,1244.576)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="2" stroke-dasharray="6,2" width="69.333" height="44" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="69.333" height="44"></rect>
+						</g>
+					</g>
+					<g width="59" height="31.5" transform="scale(1,1) translate(202.98,1303.443)">
+						<g id="parkingSlotGroup7" stroke="#4BACC6" stroke-opacity="1" stroke-width="1" stroke-dasharray="none" width="59" height="31.5" transform="scale(1,1) translate(0,0)" fill="#122769" fill-opacity="1">
+							<rect id="spot7" width="59" height="31.5"></rect>
+							<image class="free" id="car7" xlink:href="/images/car.png" y="3" transform="rotate(-90)" width="52" height="53" x="-42"></image>
+						</g>
+					</g>
+					<g width="69.333" height="44" transform="scale(1,1) translate(197.814,1297.776)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="2" stroke-dasharray="6,2" width="69.333" height="44" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="69.333" height="44"></rect>
+						</g>
+					</g>
+					<g width="0.86" height="148.04" transform="scale(1,1) translate(266.287,1193.736)">
+						<g transform="scale(1,1) translate(0,0)" fill="#000000" stroke="#000000" stroke-opacity="1">
+							<path d="M0,0 L0.86,148.04" fill="none" stroke-width="3" stroke-dasharray="none"></path>
+							<g>
+								<g stroke-dasharray="none">
+									<path d="M-3,-3L3,-3L3,3L-3,3z" stroke-width="0" fill="none"></path>
+								</g>
+							</g>
+						</g>
+					</g>
+					<g width="0.707" height="149.18" transform="scale(1,1) translate(673.321,960.382)">
+						<g transform="scale(1,1) translate(0,0)" fill="#000000" stroke="#000000" stroke-opacity="1">
+							<path d="M0,0 L0.707,149.18" fill="none" stroke-width="3" stroke-dasharray="none"></path>
+							<g>
+								<g stroke-dasharray="none">
+									<path d="M-3,-3L3,-3L3,3L-3,3z" stroke-width="0" fill="none"></path>
+								</g>
+							</g>
+						</g>
+					</g>
+					<g width="69.333" height="44" transform="rotate(270,351.727,1502.323) scale(1,1) translate(304.061,1470.323)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="2" stroke-dasharray="6,2" width="69.333" height="44" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="69.333" height="44"></rect>
+						</g>
+					</g>
+					<g width="69.333" height="44" transform="rotate(270,522.608,841.242) scale(1,1) translate(487.941,819.242)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="2" stroke-dasharray="6,2" width="69.333" height="44" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="69.333" height="44"></rect>
+						</g>
+					</g>
+					<g width="11.956" height="26" transform="rotate(90,522.919,841.702) scale(1,1) translate(516.941,828.702)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="11.956" height="26" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="11.956" height="26"></rect>
+						</g>
+						<g width="11.955578804016113" height="26" transform="scale(1,1) translate(0,0)">
+							<text width="11.955578804016113" height="24.999998092651367" transform="scale(1,1) translate(0,0.5000009536743164)" xml:space="preserve">
+								<tspan xml:space="preserve" text-rendering="optimizeSpeed" font-size="22.22222222222222" font-weight="normal" font-style="normal" fill="#ffffff" opacity="1" x="0" text-anchor="start" y="19.792" textLength="11.955578804016113" style="font-family: Arial, Helvetica Neue, Helvetica, sans-serif;">P</tspan>
+							</text>
+						</g>
+					</g>
+					<g width="11.833" height="26" transform="rotate(90,351.877,1502.623) scale(1,1) translate(355.961,1499.623)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="11.833" height="26" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="11.833" height="26"></rect>
+						</g>
+						<g width="11.955578804016113" height="26" transform="scale(1,1) translate(0,0)">
+							<text width="11.955578804016113" height="24.999998092651367" transform="scale(1,1) translate(0,0.5000009536743164)" xml:space="preserve">
+								<tspan xml:space="preserve" text-rendering="optimizeSpeed" font-size="22.22222222222222" font-weight="normal" font-style="normal" fill="#FFFFFF" opacity="1" x="0" text-anchor="start" y="19.792" textLength="11.955578804016113" style="font-family: Arial, Helvetica Neue, Helvetica, sans-serif;">P</tspan>
+							</text>
+						</g>
+					</g>
+					<g width="11.833" height="26" transform="rotate(90,232.004,1214.602) scale(1,1) translate(226.087,1201.602)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="11.833" height="26" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="11.833" height="26"></rect>
+						</g>
+						<g width="11.955578804016113" height="26" transform="scale(1,1) translate(0,0)">
+							<text width="11.955578804016113" height="24.999998092651367" transform="scale(1,1) translate(0,0.5000009536743164)" xml:space="preserve">
+								<tspan xml:space="preserve" text-rendering="optimizeSpeed" font-size="22.22222222222222" font-weight="normal" font-style="normal" fill="#FFFFFF" opacity="1" x="0" text-anchor="start" y="19.792" textLength="11.955578804016113" style="font-family: Arial, Helvetica Neue, Helvetica, sans-serif;">P</tspan>
+							</text>
+						</g>
+					</g>
+					<g width="11.833" height="26" transform="rotate(90,230.304,1265.403) scale(1,1) translate(224.387,1252.403)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="11.833" height="26" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="11.833" height="26"></rect>
+						</g>
+						<g width="11.955578804016113" height="26" transform="scale(1,1) translate(0,0)">
+							<text width="11.955578804016113" height="24.999998092651367" transform="scale(1,1) translate(0,0.5000009536743164)" xml:space="preserve">
+								<tspan xml:space="preserve" text-rendering="optimizeSpeed" font-size="22.22222222222222" font-weight="normal" font-style="normal" fill="#FFFFFF" opacity="1" x="0" text-anchor="start" y="19.792" textLength="11.955578804016113" style="font-family: Arial, Helvetica Neue, Helvetica, sans-serif;">P</tspan>
+							</text>
+						</g>
+					</g>
+					<g width="11.833" height="26" transform="rotate(90,230.064,1318.143) scale(1,1) translate(224.147,1305.143)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="11.833" height="26" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="11.833" height="26"></rect>
+						</g>
+						<g width="11.955578804016113" height="26" transform="scale(1,1) translate(0,0)">
+							<text width="11.955578804016113" height="24.999998092651367" transform="scale(1,1) translate(0,0.5000009536743164)" xml:space="preserve">
+								<tspan xml:space="preserve" text-rendering="optimizeSpeed" font-size="22.22222222222222" font-weight="normal" font-style="normal" fill="#FFFFFF" opacity="1" x="0" text-anchor="start" y="19.792" textLength="11.955578804016113" style="font-family: Arial, Helvetica Neue, Helvetica, sans-serif;">P</tspan>
+							</text>
+						</g>
+					</g>
+					<g width="11.833" height="26" transform="rotate(90,708.945,979.682) scale(1,1) translate(703.028,966.682)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="11.833" height="26" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="11.833" height="26"></rect>
+						</g>
+						<g width="11.955578804016113" height="26" transform="scale(1,1) translate(0,0)">
+							<text width="11.955578804016113" height="24.999998092651367" transform="scale(1,1) translate(0,0.5000009536743164)" xml:space="preserve">
+								<tspan xml:space="preserve" text-rendering="optimizeSpeed" font-size="22.22222222222222" font-weight="normal" font-style="normal" fill="#FFFFFF" opacity="1" x="0" text-anchor="start" y="19.792" textLength="11.955578804016113" style="font-family: Arial, Helvetica Neue, Helvetica, sans-serif;">P</tspan>
+							</text>
+						</g>
+					</g>
+					<g width="11.833" height="26" transform="rotate(90,707.945,1033.322) scale(1,1) translate(702.028,1020.322)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="11.833" height="26" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="11.833" height="26"></rect>
+						</g>
+						<g width="11.955578804016113" height="26" transform="scale(1,1) translate(0,0)">
+							<text width="11.955578804016113" height="24.999998092651367" transform="scale(1,1) translate(0,0.5000009536743164)" xml:space="preserve">
+								<tspan xml:space="preserve" text-rendering="optimizeSpeed" font-size="22.22222222222222" font-weight="normal" font-style="normal" fill="#FFFFFF" opacity="1" x="0" text-anchor="start" y="19.792" textLength="11.955578804016113" style="font-family: Arial, Helvetica Neue, Helvetica, sans-serif;">P</tspan>
+							</text>
+						</g>
+					</g>
+					<g width="11.833" height="26" transform="rotate(90,708.045,1086.222) scale(1,1) translate(702.128,1073.222)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="11.833" height="26" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="11.833" height="26"></rect>
+						</g>
+						<g width="11.955578804016113" height="26" transform="scale(1,1) translate(0,0)">
+							<text width="11.955578804016113" height="24.999998092651367" transform="scale(1,1) translate(0,0.5000009536743164)" xml:space="preserve">
+								<tspan xml:space="preserve" text-rendering="optimizeSpeed" font-size="22.22222222222222" font-weight="normal" font-style="normal" fill="#FFFFFF" opacity="1" x="0" text-anchor="start" y="19.792" textLength="11.955578804016113" style="font-family: Arial, Helvetica Neue, Helvetica, sans-serif;">P</tspan>
+							</text>
+						</g>
+					</g>
+					<g width="31.5" height="59.167" transform="scale(1,1) translate(202.48,977.082)">
+						<g id="parkingSlotGroup8" stroke="#4BACC6" stroke-opacity="1" stroke-width="1" stroke-dasharray="none" width="31.5" height="59.167" transform="scale(1,1) translate(0,0)" fill="#122769" fill-opacity="1">
+							<rect id="spot8" width="31.5" height="59.167"></rect>
+							<image class="free" id="car8" xlink:href="/images/car.png" height="53" width="52" transform="rotate(-180)" x="-42" y="-56"></image>
+						</g>
+					</g>
+					<g width="69.333" height="44" transform="rotate(270,218.147,1006.415) scale(1,1) translate(183.48,984.415)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="2" stroke-dasharray="6,2" width="69.333" height="44" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="69.333" height="44"></rect>
+						</g>
+					</g>
+					<g width="11.833" height="26" transform="rotate(90,218.397,1006.915) scale(1,1) translate(212.48,993.915)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="11.833" height="26" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="11.833" height="26"></rect>
+						</g>
+						<g width="11.955578804016113" height="26" transform="scale(1,1) translate(0,0)">
+							<text width="11.955578804016113" height="24.999998092651367" transform="scale(1,1) translate(0,0.5000009536743164)" xml:space="preserve">
+								<tspan xml:space="preserve" text-rendering="optimizeSpeed" font-size="22.22222222222222" font-weight="normal" font-style="normal" fill="#FFFFFF" opacity="1" x="0" text-anchor="start" y="19.792" textLength="11.955578804016113" style="font-family: Arial, Helvetica Neue, Helvetica, sans-serif;">P</tspan>
+							</text>
+						</g>
+					</g>
+					<g width="31.5" height="59.167" transform="scale(1,1) translate(707.421,1275.343)">
+						<g id="parkingSlotGroup9" stroke="#4BACC6" stroke-opacity="1" stroke-width="1" stroke-dasharray="none" width="31.5" height="59.167" transform="scale(1,1) translate(0,0)" fill="#122769" fill-opacity="1">
+							<rect id="spot9" width="31.5" height="59.167"></rect>
+							<image class="free" id="car9" xlink:href="/images/car.png" transform="rotate(0)" y="3" width="52" height="53" x="-11"></image>
+						</g>
+					</g>
+					<g width="69.333" height="44" transform="rotate(270,723.088,1304.676) scale(1,1) translate(688.421,1282.676)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="2" stroke-dasharray="6,2" width="69.333" height="44" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="69.333" height="44"></rect>
+						</g>
+					</g>
+					<g width="11.833" height="26" transform="rotate(90,723.338,1305.176) scale(1,1) translate(717.421,1292.176)">
+						<g stroke="#000000" stroke-opacity="1" stroke-width="0" stroke-dasharray="none" width="11.833" height="26" transform="scale(1,1) translate(0,0)" fill="none">
+							<rect width="11.833" height="26"></rect>
+						</g>
+						<g width="11.955578804016113" height="26" transform="scale(1,1) translate(0,0)">
+							<text width="11.955578804016113" height="24.999998092651367" transform="scale(1,1) translate(0,0.5000009536743164)" xml:space="preserve">
+								<tspan xml:space="preserve" text-rendering="optimizeSpeed" font-size="22.22222222222222" font-weight="normal" font-style="normal" fill="#FFFFFF" opacity="1" x="0" text-anchor="start" y="19.792" textLength="11.955578804016113" style="font-family: Arial, Helvetica Neue, Helvetica, sans-serif;">P</tspan>
+							</text>
+						</g>
+					</g>
+				</g>
+			</svg>
+		</div>
+	</div>
+</body>
+
+</html>
