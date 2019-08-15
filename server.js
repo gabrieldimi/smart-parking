@@ -6,7 +6,8 @@ let app = express();
 let ip = require('ip');
 let fs = require('fs');
 let path = require('path');
-let https = require('https')
+let https = require('https');
+let http = require('http');
 let mqtt = require('mqtt');
 let mongodb = require('mongodb');
 let bcrypt = require('bcryptjs');
@@ -180,13 +181,16 @@ app.post('/', (req,res) => {
 		}
 	}
 });
-
+/*
 // Starting https-server with local key and certificate
 let server = https.createServer({
   key: fs.readFileSync(path.join(__dirname + '/server.key')),
   cert: fs.readFileSync(path.join(__dirname + '/server.cert'))
-}, app)
-.listen(args.port, function () {
+}, app);
+*/
+//Starting http server
+let server = http.createServer(app);
+server.listen(args.port, function () {
   console.log(`Express running → ADDRESS ${ip.address()} on PORT ${args.port}`);
 });
 
