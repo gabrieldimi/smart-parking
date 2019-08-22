@@ -37,7 +37,7 @@ function addCar( parkingSpotIdNumber ){
 function removeCar( parkingSpotIdNumber ){
     console.log('Parking spot',parkingSpotIdNumber, 'is free');
     $('#car'+parkingSpotIdNumber).addClass('free');
-    $('#licenseplate').addClass('free');
+    //$('#licenseplate').addClass('free');
     $('#spot'+parkingSpotIdNumber).removeClass('taken');
     if($('#parkingSlotGroup'+parkingSpotIdNumber).hasClass('scaleOut')){
         $('#parkingSlotGroup'+parkingSpotIdNumber).removeClass('scaleOut');   

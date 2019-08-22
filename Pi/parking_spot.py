@@ -51,7 +51,7 @@ def on_message(client, userdata, message):
 						blink_thread.do_blink = False
 						blink_thread.alpr_recognition_done = False
 						blink_thread.taken = False
-				elif message.topic == image_is_taken:
+				elif message.topic == alpr_is_successful:
 					blink_thread.do_blink = False
 					blink_thread.alpr_recognition_done = True
 
@@ -60,7 +60,7 @@ def on_message(client, userdata, message):
 
 def on_connect(client, userdata, flags, rc):
 	#print("Connected to broker.",client._host,"at port", client._port)
-	client.subscribe(image_is_taken)
+	client.subscribe(alpr_is_successful)
 	client.subscribe(car_is_here)
 
 def setToDefault(isBegin):
@@ -126,7 +126,7 @@ if __name__ == '__main__':
 			time_to_sleep = float(args['time_to_sleep'])
 			spot_number = args['id_number_of_sensor']
 			car_is_here = args['topics'][0]
-			image_is_taken = args['topics'][1]
+			alpr_is_successful = args['topics'][1]
 
 			# Initializing mqtt client and connecting to mqtt broker
 			client = mqtt.Client('pi_sensors')

@@ -1,16 +1,16 @@
 {
 	"arguments" : {
 		"mqtt_ip" : "10.0.0.3",
-		"topics": ["parking-spot/car-is-here","parking-spot/image-is-taken"],
-		"desired_distance" : 30.0,
+		"topics": ["parking-spot/car-is-here","parking-spot/alpr_is_successful"],
+		"desired_distance" : 50.0,
 		"time_to_sleep" : 1.0,
 		"id_number_of_sensor" : 1,
 		"sensor_trigger" : 4,
 		"sensor_echo" : 17,
-		"red_gpio" : 19,
-		"green_gpio" : 16,
-		"yellow_gpio" : 26,
-		"blue_gpio" : 20,
+		"red_gpio" : 26,
+		"green_gpio" : 20,
+		"yellow_gpio" : 16,
+		"blue_gpio" : 19,
 		"blink_speed" : 0.1
 	}
 }
