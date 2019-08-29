@@ -19,7 +19,7 @@ This project constructs a mini smart parking system using four main compoments, 
 1. Clone repository with `git clone https://github.com/gabrieldimi/smart-parking.git`
 2. Run `sudo apt-get update`
 3. Make sure python is installed (it should already be installed on raspbian image)
-4. Install the GPIO library for the sensors with `sudo apt-get install rpi.gpio`
+4. Install the GPIO library for the sensors with `sudo apt-get install pigpio python-pigpio python3-pigpio`
 5. Make sure pip is installed, if not install with `sudo apt-get install python-pip`
 6. Install paho mqtt client with `sudo pip install paho-mqtt`
 7. Install `sudo npm install`
