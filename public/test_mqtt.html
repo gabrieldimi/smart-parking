@@ -1,0 +1,22 @@
+<html>
+
+<body>
+
+<script src="js/mqtt.min.js"></script>
+
+<script>
+var client = mqtt.connect("mqtt://10.0.0.3:9001");
+
+    client.subscribe("parking-spot/car-is-here");
+
+client.on("message", (topic, payload) => {
+	switch (topic) {
+        case 'parking-spot/car-is-here':
+        	console.log(JSON.parse(payload));
+	    	break;
+	}
+});
+</script>
+
+</body>
+</html>

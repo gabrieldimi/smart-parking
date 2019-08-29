@@ -1,26 +1,16 @@
-/* ==========================================================================
-   #STYLES
-   ========================================================================== */
+html {
+  box-sizing: border-box;
+}
 
-   html {
-    box-sizing: border-box;
-  }
-
-  *, *::before, *::after {
-    box-sizing: inherit; /* [1] */
-    margin: 0;
-    padding: 0;
-  }
-
-/* FONTS
-========================================================================== */
+*, *::before, *::after {
+  box-sizing: inherit; /* [1] */
+  margin: 0;
+  padding: 0;
+}
 
 body {
   font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif; /* [2] */
 }
-
-/* Header
-========================================================================== */
 
 .header {
   width: 100%;

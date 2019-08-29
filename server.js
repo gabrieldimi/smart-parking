@@ -1,201 +1,209 @@
-const express = require('express');
-const args = require('./args.json').arguments;
-let app = express();
-let fs = require('fs');
-let ip = require('ip');
-let path = require('path');
-let cluster = require('cluster');
-let numCPUs = require('os').cpus().length;
-let server = require('http').Server(app);
-let io = require('socket.io')(server);
-let {PythonShell} = require('python-shell');
-
-let timeFromLastMessageFromSensor;
-
-// Namespaces for browser and app socket connections
-const nspBrowsers = io.of('/browsers');
-const nspApps = io.of('/apps');
-
 // Passed arguments
-let measuringDistance = args.distance;
-let sensorSleepingtime = args.time_to_sleep;
-let idNumberOfSensor = args.id_number_of_sensor;
+const args = require('./args.json').arguments;
+const express = require('express');
 
-// These two following values are for the python script for setting the GPIO IN and OUT, HIGH and LOW 
-let sensorTrigger = args.sensor_trigger;
-let sensorEcho = args.sensor_echo;
+let app = express();
+let ip = require('ip');
+let fs = require('fs');
+let path = require('path');
+let https = require('https');
+let http = require('http');
+let mqtt = require('mqtt');
+let mongodb = require('mongodb');
+let bcrypt = require('bcryptjs');
+let bodyParser = require('body-parser');
 
-let noSernorsPluggedOn = args.no_sensors_plugged_on;
 
-let licensePlatePattern = args.license_plate_pattern;
+let mqttServerClient = mqtt.connect(args.mqtt_uri);
+let mongoServerClient;
+let mongoDatabaseObj;
 
-console.log("Distance:",measuringDistance,"cm");
-console.log("Id number of sensor:",idNumberOfSensor);
-console.log("Sleeping time between readings of sensor:",sensorSleepingtime,"sec(s)");
+//Stores the status of the parking spots
+let parkingSpotsStatusJson = {
+}
+
+function handleCarIsHere(message,collectionObj){
+	let jsonMsg = JSON.parse(message.toString());
+	if(jsonMsg.sender === "pi")
+	{
+		console.log("Message published to parking-spot/car-is-here by Pi");
+		parkingSpotsStatusJson[jsonMsg.spot] = jsonMsg.spot_status;
+
+		let messageObject = {
+			"spot" : jsonMsg.spot
+		}	
+		if(jsonMsg.spot_status){
+			messageObject.text = "No plate recognized";
+			messageObject.confidence = "0.0";
+			messageObject.image = "No image shot";
+			messageObject.arrival = jsonMsg.arrival;
+			messageObject.departure = "-";
+		}else{
+			messageObject.departure = jsonMsg.departure;
+		}
+		collectionObj.updateOne({_id : jsonMsg.uuid}, {$set : messageObject}, {upsert:true})
+	}else{
+		console.log("Message published to parking-spot/car-is-here by Server, so do nothing.");
+	}
+}
+
+function handleNothingIsDetected(message,collectionObj){
+	let jsonMsg = JSON.parse(message.toString());
+	console.log('No license plate detected by camera at spot', jsonMsg.spot);
+	
+	collectionObj.updateOne({_id : jsonMsg.uuid}, {$set : {'image': jsonMsg.image} })
+	
+	if( parkingSpotsStatusJson[jsonMsg.spot] ){
+		console.log('Checking again');
+		mqttServerClient.publish(args.topics[0],JSON.stringify({ 'uuid' : jsonMsg.uuid, 'spot' : jsonMsg.spot,'spot_status': true, 'sender' : 'server'}));
+	}else{
+		console.log('Car at spot', jsonMsg.spot, 'is gone already');
+	}
+}
+
+function handleImageIsTaken(message,collectionObj){
+	let jsonMsg = JSON.parse(message.toString());
+	let messageObject = {
+		"text" : jsonMsg.text,
+		"confidence" : jsonMsg.confidence,
+   		"image" : jsonMsg.image
+	}
+	collectionObj.updateOne({_id : jsonMsg.uuid}, { $set : messageObject });
+}
+
+let connectToMongoWithRetry = function() {
+	mongodb.MongoClient.connect(args.mongodb_uri,{ useNewUrlParser: true }, (error, client) => {
+		if(error){
+			console.error('Failed to connect to mongo on startup - retrying in 5 sec', error);
+			setTimeout(connectToMongoWithRetry,5000);
+		}
+		console.log('Connection to mongodb established');
+		
+		mongoServerClient = client;
+
+		mongoDatabaseObj = client.db(args.mongodb_database);
+
+		let collectionObj = mongoDatabaseObj.collection(args.mongodb_collection_for_park_data);
+
+		mqttServerClient.on('message',(topic, message) => {
+			switch (topic) {
+				case args.topics[0]:
+					return handleCarIsHere(message,collectionObj);
+				case args.topics[1]:
+					return handleImageIsTaken(message,collectionObj);
+				case args.topics[2]:
+					return handleNothingIsDetected(message,collectionObj);
+			}
+			console.log('No handler for topic %s', topic)
+		});
+	});
+}
+
+connectToMongoWithRetry();
 
 // Using pug engine for viewing html
 // app.set('view engine', 'pug');
 
-server.listen(args.port, () => {
-	console.log(`Express running → ADDRESS ${ip.address()} on PORT ${server.address().port}`);
-});
-
 // serve static files from the public folder
 app.use(express.static(__dirname + '/public'));
+// parse post form input
+app.use(bodyParser.urlencoded({ extended: true}));
 
 app.get('/', (req,res) => {
-	// res.render('index',{
-	//   title: 'Smart parking on 9th floor of DEC'
-	// });
+	console.log("Directing to user page");
 	res.sendFile(path.join(__dirname + '/index.html'));
 });
 
-if(!noSernorsPluggedOn){
+/* 
+* If manager, redirect to manager page;
+* If normal user, redirect to user page. 
+*/
+app.post('/', (req,res) => {
 
-	let pythonShellOptions = {
-		mode: 'text',
-		pythonOptions: ['-u'], // get print results in real-time
-		args: [sensorTrigger,sensorEcho,Number(sensorSleepingtime),]
-	};
+	let user_id = req.body.user_id;
+	let password_hash = req.body.pwd;
+	// This key is used for registration, in order to make sure that the real manager is registering
+	let key = req.body.key;
 
-    /*	The parking slot is a JSON-object, containing the following key-value pairs:
-	*	1.		A python shell with options (see above),
-	*	2.		Python-shell's child process
-	*	3.		ID number of the sensor,
-	*	4./5.	Two boolean values, which are used as a toggle whenever the sensor measures a distance 
-	*			between the 0 and the given distance (see above from arguments);
-	*	6.		The read text of the license plate (this value is by default empty),
-	*	7.		The number of the license plate list item corresponding to a parking slot.
-	*	8.		The image of license plate
-	*/
-	let parkingSlot = { 
-		'shell' : new PythonShell('sensor.py', pythonShellOptions),
-		'shell_process' : '',
-		'spotNumber' : idNumberOfSensor,
-		'spotTaken' : false,
-		'spotFree' : false,
-		'licensePlateText' : '',
-		'licensePlateListItemNumber' : idNumberOfSensor,
-		'licensePlateImage' : ''
-	};
+	if(user_id === undefined || password_hash === undefined){
+		console.log("User id or password are not defined, redirecting to user page");
+		res.sendFile(path.join(__dirname + '/index.html'));
+	}else{
 
+		let collectionForManagementData = mongoDatabaseObj.collection(args.mongodb_collection_for_manager_data);
+			
+		if(key === undefined){
+			console.log("Manager trying to log in ...");
 
-	startPythonScript( parkingSlot );
-
-	nspBrowsers.on('connection', (socket) => {
-
-		console.log('New browser socket is connected',socket.id);
-		console.log('Checking if browser has missed any parking action...');
-
-		if(parkingSlot.licensePlateText !== ""){
-			socket.emit('updateSmartPark',
-						parkingSlot.spotNumber,
-						parkingSlot.licensePlateListItemNumber,
-						parkingSlot.licensePlateText,
-						parkingSlot.licensePlateImage);
-		}
-
-		socket.on('disconnect', () => {
-			console.log('Browser has been disconnected');
-		});
-	});
-
-	nspApps.on('connection', (socket) => {
-
-		console.log('New app socket is connected',socket.id);
-
-		socket.on('image taken', (image,text,parkingSpotIdNumber,plateListIdNumber) => {
-			// This next condition is only true if car stays parked.
-			if(plateListIdNumber != undefined && parkingSlot.spotTaken){
-				if(text.match(licensePlatePattern)){
-					console.log('Image was taken from app from license plate',text,'of spot', parkingSpotIdNumber);
-					nspBrowsers.emit('license plate received',text,parkingSpotIdNumber,plateListIdNumber);
-					nspBrowsers.emit('image received', image);
-					parkingSlot.licensePlateImage = image;
-					parkingSlot.licensePlateText = text;
-					console.log('App has sent image and text');
+			collectionForManagementData.findOne({manager_id : user_id}, function(err,result){
+				if(err){
+					console.log("Error during search for document, redirecting to user page",err);
+					res.sendFile(path.join(__dirname + '/index.html'));
 				}else{
-					console.log('Text from image', text,'does not match with the pattern. Trying again...');
-					nspApps.emit('take picture',parkingSpotIdNumber,plateListIdNumber);
-				}
+
+					if(result){
+						console.log("Manager with user_id "+user_id+" exists");
+
+						let hashingSuccessful = bcrypt.compareSync(password_hash, result.pwd);
+				   		if(!hashingSuccessful){
+					    	console.log("Comparison of password to dataset hash not successful, redirecting to user page");
+							res.sendFile(path.join(__dirname + '/index.html'));
+						}else{
+					    	console.log("Redirecting to manager page");
+					    	res.sendFile(path.join(__dirname + '/index_manager.html'));
+			    		}
+					}else{
+						console.log("Manager does not exist, redirecting to user page");
+						res.sendFile(path.join(__dirname + '/index.html'));
+					}
+				}	
+			});
+		}else{
+			console.log("Manager trying to register ...")
+
+		 	if(key === args.key.toString()){
+
+				bcrypt.hash(password_hash,10,function(err, hash){
+			 		if(err){
+						console.log("Hashing of manager's pwd failed, redirecting to user page",err);
+						res.sendFile(path.join(__dirname + '/index.html'));
+					}else{
+						console.log("Manager has registered, redirecting to manager page");
+						collectionForManagementData.updateOne({manager_id : user_id}, {$set : {"pwd":hash}}, {upsert:true});
+						res.sendFile(path.join(__dirname + '/index_manager.html'));
+					}
+				});
+
 			}else{
-				// the license plate number (see above: row[5] = 0) is set back to 0 (the default value)
-				console.log('Car at spot',parkingSpotIdNumber,'with license plate',text,'just came and went.');
+			 	console.log("False key for registration of a new manager, redirecting to user page");
+			 	res.sendFile(path.join(__dirname + '/index.html'));
 			}
-		});
-
-		socket.on('no car detected', (parkingSpotIdNumber,plateListIdNumber) => {
-			console.log('No car at',parkingSpotIdNumber,'detected, trying again...');
-			if(parkingSlot.spotTaken){
-				nspApps.emit('take picture',parkingSpotIdNumber,plateListIdNumber);
-			}
-		});
-
-		socket.on('disconnect', () => {
-			console.log('App has been disconnected');
-		});
-	});
-
-   
-	setInterval(function() {
-		console.log('Server still running',(Date.now() - timeFromLastMessageFromSensor));
-		if((Date.now() - timeFromLastMessageFromSensor) >5500){ 
-			console.log('Restarting python script');
-			parkingSlot.shell_process.stdin.pause();
-			parkingSlot.shell_process.stdout.pause();
-			parkingSlot.shell_process.kill();
-			parkingSlot.shell = new PythonShell('sensor.py', pythonShellOptions);
-			parkingSlot.spotTaken = false;
-			parkingSlot.spotFree = false;
-			startPythonScript( parkingSlot );
 		}
-	}, 5000);
-   
+	}
+});
+/*
+// Starting https-server with local key and certificate
+let server = https.createServer({
+  key: fs.readFileSync(path.join(__dirname + '/server.key')),
+  cert: fs.readFileSync(path.join(__dirname + '/server.cert'))
+}, app);
+*/
+//Starting http server
+let server = http.createServer(app);
+server.listen(args.port, function () {
+  console.log(`Express running → ADDRESS ${ip.address()} on PORT ${args.port}`);
+});
 
-}else{
-	console.log('This is for debugging purposes outside of raspberry PI usage');
-}
+mqttServerClient.on('connect', (connack) => {
+	console.log('Connection status to mqtt broker',connack);
+	mqttServerClient.subscribe('parking-spot/car-is-here');
+	mqttServerClient.subscribe('parking-spot/image-is-taken');
+	mqttServerClient.subscribe('parking-spot/nothing-is-detected');
+});
 
-
-function startPythonScript( parkingSlot ){
-
-	console.log('Starting python shell for sensor', parkingSlot.spotNumber);
-
-	parkingSlot.shell.on('stderr', function (stderr) {
-		console.log('Stderr',stderr);
+process.on('SIGINT', () => {
+	mongoServerClient.close(() => {
+		console.log('Mongo database connection closed due to app termination');
+		process.exit(0);
 	});
-
-	parkingSlot.shell.on('message', function(distance){
-
-			timeFromLastMessageFromSensor = Date.now();
-
-			console.log("Distance measure from sensor",parkingSlot.spotNumber,":",distance);
-
-			if(distance <= measuringDistance){
-				if(!parkingSlot.spotTaken){
-					nspBrowsers.emit('spot taken',parkingSlot.spotNumber);
-					nspApps.emit('take picture',parkingSlot.spotNumber,parkingSlot.licensePlateListItemNumber);
-					parkingSlot.spotTaken = true;
-					parkingSlot.spotFree = false;
-				}
-			}else if(distance > measuringDistance){
-				if(!parkingSlot.spotFree){
-					nspBrowsers.emit('spot free',parkingSlot.spotNumber,parkingSlot.licensePlateListItemNumber);
-					parkingSlot.spotTaken = false;
-					parkingSlot.spotFree = true;
-					parkingSlot.licensePlateText = "";
-				}
-			}
-	});
-
-	parkingSlot.shell.end(function (err,code,signal) {
-		console.log('Python shell ended.');
-		console.log('The exit code was: ' + code);
-		console.log('The exit signal was: ' + signal);
-		if(err){
-			console.log('Closing...',err);
-		}
-	});
-
-	parkingSlot.shell_process = parkingSlot.shell.childProcess;
-}
+});

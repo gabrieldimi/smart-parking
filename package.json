@@ -1,15 +1,21 @@
 {
-  "name": "simple-node-website",
-  "version": "0.1.0",
-  "description": "A simple website built with Node, Express and Pug",
+  "name": "Smart-Parking-System",
+  "version": "1.1.2",
+  "description": "This project consists of 2 parts, the server, running express, a mongodb client and a mqqt client, and a pi, running python cli applications.",
   "main": "server.js",
-  "author": "Ayo Isaiah",
+  "author": "Gabriel Dimitrov",
   "license": "MIT",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
     "express": "^4.16.4",
-    "http": "0.0.0",
+    "fs": "0.0.1-security",
+    "https": "^1.0.0",
+    "ip": "^1.1.5",
+    "mongodb": "^3.2.7",
+    "mqtt": "^3.0.0",
+    "path": "^0.12.7",
     "pug": "^2.0.3",
-    "python-shell": "^1.0.7",
-    "socket.io": "^2.2.0"
+    "python-shell": "^1.0.7"
   }
 }
