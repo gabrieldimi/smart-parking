@@ -43,7 +43,7 @@ This project constructs a mini smart parking system using four main compoments, 
 ## On android application
 Take a look at the readme from [android application using OpenALPR and Tesseract OCR](https://github.com/gabrieldimi/OpenAlprDroidApp)
 
-### The mongoDB data has been visualized by the following project [MongoDB_SmartParking_Visual](https://github.com/gabrieldimi/MongoDB_SmartParking_Visual). ###
+## The mongoDB data has been visualized by the following project [MongoDB_SmartParking_Visual](https://github.com/gabrieldimi/MongoDB_SmartParking_Visual). ##
 
 ## Here is a view of the components in relation to another.
 
